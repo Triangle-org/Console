@@ -1,0 +1,40 @@
+{
+  "name": "triangle/console",
+  "description": "Triangle Console Plugin",
+  "type": "library",
+  "keywords": [
+    "localzet",
+    "Triangle",
+    "console"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "authors": [
+    {
+      "role": "Developer",
+      "name": "Ivan Zorin",
+      "email": "creator@localzet.com",
+      "homepage": "https://github.com/localzet"
+    }
+  ],
+  "support": {
+    "email": "support@localzet.com",
+    "source": "https://github.com/Triangle-org/Console"
+  },
+  "autoload": {
+    "psr-4": {
+      "Triangle\\": "src",
+      "Triangle\\Console\\": "src/Console"
+    }
+  },
+  "require": {
+    "php": "^8.2",
+    "doctrine/inflector": "^2.0",
+    "symfony/deprecation-contracts": "^2.1|^3",
+    "symfony/polyfill-mbstring": "~1.0",
+    "symfony/service-contracts": "^1.1|^2|^3",
+    "symfony/string": "^5.4|^6.0"
+  },
+  "require-dev": {
+    "triangle/engine": ">=3.4"
+  }
+}
