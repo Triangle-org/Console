@@ -35,6 +35,6 @@
     "symfony/string": "^5.4|^6.0"
   },
   "require-dev": {
-    "triangle/engine": ">=4.0"
+    "triangle/engine": ">=3.4"
   }
 }
