@@ -1,11 +1,11 @@
 {
   "name": "triangle/console",
-  "description": "Triangle Console Plugin",
+  "description": "Triangle Console Component",
   "type": "library",
   "keywords": [
     "localzet",
     "Triangle",
-    "console"
+    "Console"
   ],
   "license": "AGPL-3.0-or-later",
   "authors": [
