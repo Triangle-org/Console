@@ -28,7 +28,7 @@ namespace Triangle\Console\Command;
 
 use Phar;
 use RuntimeException;
-use Triangle\Console\{Input\InputInterface, Output\OutputInterface};
+use Symfony\Component\Console\{Input\InputInterface, Output\OutputInterface};
 
 class PharPackCommand extends Command
 {

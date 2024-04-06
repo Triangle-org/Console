@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace Triangle\Console\Command;
 
 use Throwable;
-use Triangle\{Console\Input\InputArgument, Console\Input\InputInterface, Console\Output\OutputInterface, Console\Util};
+use Symfony\Component\Console\{Input\InputArgument, Input\InputInterface, Console\Output\OutputInterface, Console\Util};
 
 
 class MakeModelCommand extends Command

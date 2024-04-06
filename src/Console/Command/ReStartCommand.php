@@ -28,9 +28,9 @@ namespace Triangle\Console\Command;
 
 use support\App;
 use Throwable;
-use Triangle\Console\Input\InputInterface;
-use Triangle\Console\Input\InputOption;
-use Triangle\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ReStartCommand extends Command
 {

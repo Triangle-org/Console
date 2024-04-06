@@ -26,8 +26,8 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Command;
 
-use Triangle\Console\Input\InputInterface;
-use Triangle\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class GitWebhookCommand extends Command
 {

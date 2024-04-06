@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Command;
 
-use Triangle\{Console\Input\InputInterface, Console\Output\OutputInterface};
+use Symfony\Component\Console\{Input\InputInterface, Output\OutputInterface};
 
 class NginxDisableCommand extends Command
 {

@@ -26,8 +26,8 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Command;
 
-use Triangle\Console\Input\{InputInterface, InputOption};
-use Triangle\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\{InputInterface, InputOption};
+use Symfony\Component\Console\Output\OutputInterface;
 use Triangle\Console\Util;
 
 class PluginCreateCommand extends Command

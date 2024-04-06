@@ -93,10 +93,10 @@ class MakeCommandCommand extends Command
 namespace $namespace;
 
 use Triangle\Console\Command\Command;
-use Triangle\Console\Input\InputInterface;
-use Triangle\Console\Input\InputOption;
-use Triangle\Console\Input\InputArgument;
-use Triangle\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Output\OutputInterface;
 
 
 class $name extends Command

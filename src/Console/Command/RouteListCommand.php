@@ -27,9 +27,9 @@ declare(strict_types=1);
 namespace Triangle\Console\Command;
 
 use Closure;
-use Triangle\Console\Helper\Table;
-use Triangle\Console\Input\InputInterface;
-use Triangle\Console\Output\OutputInterface;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Triangle\Engine\Route;
 
 class RouteListCommand extends Command

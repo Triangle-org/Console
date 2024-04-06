@@ -28,8 +28,8 @@ namespace Triangle\Console\Command;
 
 use support\App;
 use Throwable;
-use Triangle\Console\Input\InputInterface;
-use Triangle\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ConnectionsCommand extends Command
 {
