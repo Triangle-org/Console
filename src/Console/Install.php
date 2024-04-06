@@ -27,21 +27,36 @@ declare(strict_types=1);
 namespace Triangle\Console;
 
 /**
- *
+ * Класс Install
+ * Этот класс предназначен для установки и обновления плагина.
  */
 class Install
 {
-    /**
-     *
-     */
     public const TRIANGLE_PLUGIN = true;
 
     /**
-     * Install
+     * @var array
+     */
+    protected static array $pathRelation = [
+        'Config' => 'config/plugin/triangle/console',
+    ];
+
+    /**
+     * Установка плагина
      * @return void
      */
-    public static function install()
+    public static function install(): void
     {
+        static::installByRelation();
+    }
+
+    /**
+     * Обновление плагина
+     * @return void
+     */
+    public static function update(): void
+    {
+        static::installByRelation();
     }
 
     /**
@@ -53,11 +68,27 @@ class Install
     }
 
     /**
-     * installByRelation
+     * Установка плагина
      * @return void
      */
-    public static function installByRelation()
+    public static function installByRelation(): void
     {
+        foreach (static::$pathRelation as $source => $target) {
+            $sourceFile = __DIR__ . "/$source";
+            $targetFile = base_path($target);
+
+            if ($pos = strrpos($source, '/')) {
+                $parentDir = base_path(substr($source, 0, $pos));
+                if (!is_dir($parentDir)) {
+                    mkdir($parentDir, 0777, true);
+                }
+            }
+
+            copy_dir($sourceFile, $targetFile, true);
+            remove_dir($sourceFile);
+
+            echo "Создан $target\r\n";
+        }
     }
 
     /**
@@ -66,5 +97,10 @@ class Install
      */
     public static function uninstallByRelation()
     {
+        foreach (static::$pathRelation as $source => $target) {
+            remove_dir(base_path($target));
+
+            echo "Удалён $target\r\n";
+        }
     }
 }

@@ -28,14 +28,22 @@ namespace Triangle;
 
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use Triangle\Console\Application;
-use Triangle\Console\Command\Command as Commands;
+use SplFileInfo;
+use RuntimeException;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command as Commands;
+use support\Container;
 
 /**
  *
  */
 class Console extends Application
 {
+    public function installInternalCommands()
+    {
+        $this->installCommands(__DIR__ . '/Commands', 'Triangle\Console\Commands');
+    }
+
     /**
      * @param string $path
      * @param string $namspace
@@ -46,14 +54,37 @@ class Console extends Application
         $dir_iterator = new RecursiveDirectoryIterator($path);
         $iterator = new RecursiveIteratorIterator($dir_iterator);
         foreach ($iterator as $file) {
-            if (is_dir($file)) {
+            /** @var SplFileInfo $file */
+            if (str_starts_with($file->getFilename(), '.')) {
                 continue;
             }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
+            if ($file->getExtension() !== 'php') {
                 continue;
             }
-            $this->add(new $class_name);
+
+            // abc\def.php
+            $relativePath = str_replace(str_replace('/', '\\', $path . '\\'), '', str_replace('/', '\\', $file->getRealPath()));
+            // app\command\abc
+            $realNamespace = trim($namspace . '\\' . trim(dirname(str_replace('\\', DIRECTORY_SEPARATOR, $relativePath)), '.'), '\\');
+            $realNamespace =  str_replace('/', '\\', $realNamespace);
+            // app\command\doc\def
+            $class_name = trim($realNamespace . '\\' . $file->getBasename('.php'), '\\');
+            if (!class_exists($class_name) || !is_a($class_name, Commands::class, true)) {
+                continue;
+            }
+            $reflection = new \ReflectionClass($class_name);
+            if ($reflection->isAbstract()) {
+                continue;
+            }
+            $properties = $reflection->getStaticProperties();
+            $name = $properties['defaultName'];
+            if (!$name) {
+                throw new RuntimeException("Command {$class_name} has no defaultName");
+            }
+            $description = $properties['defaultDescription'] ?? '';
+            $command = Container::get($class_name);
+            $command->setName($name)->setDescription($description);
+            $this->add($command);
         }
     }
 }
