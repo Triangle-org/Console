@@ -19,7 +19,7 @@ class AppCreateCommand extends Command
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('name', InputArgument::REQUIRED, 'Название приложения');
     }
@@ -53,7 +53,7 @@ class AppCreateCommand extends Command
      * @param $name
      * @return void
      */
-    protected function createAll($name)
+    protected function createAll($name): void
     {
         $base_path = base_path();
         $this->mkdir("$base_path/plugin/$name/app/controller", 0777, true);
@@ -69,16 +69,18 @@ class AppCreateCommand extends Command
     }
 
     /**
-     * @param $path
+     * @param string $directory
+     * @param int $permissions
+     * @param bool $recursive
      * @return void
      */
-    protected function mkdir($path)
+    protected function mkdir(string $directory, int $permissions = 0777, bool $recursive = true): void
     {
-        if (is_dir($path)) {
+        if (is_dir($directory)) {
             return;
         }
-        echo "Создание $path\r\n";
-        mkdir($path, 0777, true);
+        echo "Создание $directory\r\n";
+        mkdir($directory, $permissions, $recursive);
     }
 
     /**
@@ -86,7 +88,7 @@ class AppCreateCommand extends Command
      * @param $name
      * @return void
      */
-    protected function createControllerFile($path, $name)
+    protected function createControllerFile($path, $name): void
     {
         $content = <<<EOF
 <?php
@@ -114,7 +116,7 @@ EOF;
      * @param $file
      * @return void
      */
-    protected function createFunctionsFile($file)
+    protected function createFunctionsFile($file): void
     {
         $content = <<<EOF
 <?php
@@ -133,7 +135,7 @@ EOF;
      * @param $name
      * @return void
      */
-    protected function createConfigFiles($base, $name)
+    protected function createConfigFiles($base, $name): void
     {
         // app.php
         $content = <<<EOF

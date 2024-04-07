@@ -76,7 +76,7 @@ class MakeCommandCommand extends Command
         return self::SUCCESS;
     }
 
-    protected function getClassName($name)
+    protected function getClassName($name): string
     {
         return preg_replace_callback('/:([a-zA-Z])/', function ($matches) {
                 return strtoupper($matches[1]);

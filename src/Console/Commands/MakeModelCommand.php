@@ -106,7 +106,7 @@ class MakeModelCommand extends Command
      * @param null $connection
      * @return void
      */
-    protected function createModel($class, $namespace, $file, $connection = null)
+    protected function createModel($class, $namespace, $file, $connection = null): void
     {
         $path = pathinfo($file, PATHINFO_DIRNAME);
         if (!is_dir($path)) {

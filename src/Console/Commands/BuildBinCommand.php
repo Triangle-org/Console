@@ -18,7 +18,7 @@ class BuildBinCommand extends BuildPharCommand
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('version', InputArgument::OPTIONAL, 'Версия PHP');
     }

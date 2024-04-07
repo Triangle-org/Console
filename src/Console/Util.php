@@ -35,7 +35,7 @@ class Util
      * @param $name
      * @return array|string|string[]
      */
-    public static function nameToNamespace($name)
+    public static function nameToNamespace($name): array|string
     {
         $namespace = ucfirst($name);
         $namespace = preg_replace_callback(['/-([a-zA-Z])/', '/(\/[a-zA-Z])/'], function ($matches) {
@@ -48,7 +48,7 @@ class Util
      * @param $class
      * @return array|string|string[]|null
      */
-    public static function classToName($class)
+    public static function classToName($class): array|string|null
     {
         $class = lcfirst($class);
         return preg_replace_callback(['/([A-Z])/'], function ($matches) {
@@ -60,7 +60,7 @@ class Util
      * @param $class
      * @return string
      */
-    public static function nameToClass($class)
+    public static function nameToClass($class): string
     {
         $class = preg_replace_callback(['/-([a-zA-Z])/', '/_([a-zA-Z])/'], function ($matches) {
             return strtoupper($matches[1]);

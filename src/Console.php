@@ -40,7 +40,10 @@ use Symfony\Component\Console\Command\Command as Commands;
  */
 class Console extends Application
 {
-    public function installInternalCommands()
+    /**
+     * @return void
+     */
+    public function installInternalCommands(): void
     {
         $this->installCommands(__DIR__ . '/Console/Commands', 'Triangle\Console\Commands');
     }
@@ -80,7 +83,7 @@ class Console extends Application
             $properties = $reflection->getStaticProperties();
             $name = $properties['defaultName'];
             if (!$name) {
-                throw new RuntimeException("Command {$class_name} has no defaultName");
+                throw new RuntimeException("Command $class_name has no defaultName");
             }
             $description = $properties['defaultDescription'] ?? '';
             $command = Container::get($class_name);

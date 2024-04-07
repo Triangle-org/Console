@@ -95,7 +95,7 @@ class Install
      * uninstallByRelation
      * @return void
      */
-    public static function uninstallByRelation()
+    public static function uninstallByRelation(): void
     {
         foreach (static::$pathRelation as $source => $target) {
             remove_dir(base_path($target));
