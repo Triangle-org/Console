@@ -141,7 +141,7 @@ class Install
             \$sourceFile = __DIR__ . "/\$source";
             \$targetFile = base_path(\$target);
 
-            if (\$pos = strrpos(\$dest, '/')) {
+            if (\$pos = strrpos(\$target, '/')) {
                 \$parentDir = base_path(substr(\$source, 0, \$pos));
                 if (!is_dir(\$parentDir)) {
                     mkdir(\$parentDir, 0777, true);
