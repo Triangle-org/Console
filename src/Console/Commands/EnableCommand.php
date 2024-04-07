@@ -35,7 +35,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class EnableCommand extends Command
 {
-    protected static $defaultName = 'supervisor:enable|enable';
+    protected static $defaultName = 'enable';
     protected static $defaultDescription = 'Добавить проект в автозагрузку';
 
     /**

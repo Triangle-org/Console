@@ -99,7 +99,7 @@ class Console extends Application
     {
         return new InputDefinition([
             new InputArgument('command', InputArgument::REQUIRED, 'Команда для выполнения'),
-            new InputOption('--help', '-h', InputOption::VALUE_NONE, 'Отобразить справку по данной команде. Если команда не задана, отобразится справка для команды <info>list</info>.'),
+            new InputOption('--help', '-h', InputOption::VALUE_NONE, 'Отобразить справку по данной команде. Если команда не задана, отобразится справка для команды <info>help</info>.'),
             new InputOption('--quiet', '-q', InputOption::VALUE_NONE, 'Не выводить никаких сообщений'),
             new InputOption('--verbose', '-v|vv|vvv', InputOption::VALUE_NONE, 'Увеличьте уровень детализации сообщений: 1 - для обычного вывода, 2 - для более подробного вывода и 3 - для отладки.'),
             new InputOption('--version', '-V', InputOption::VALUE_NONE, 'Показать версию приложения'),

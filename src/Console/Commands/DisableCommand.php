@@ -35,7 +35,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class DisableCommand extends Command
 {
-    protected static $defaultName = 'supervisor:disable|disable';
+    protected static $defaultName = 'disable';
     protected static $defaultDescription = 'Удалить проект из автозагрузки';
 
     /**
