@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class BuildPharCommand extends Command
 {
     protected static $defaultName = 'build:phar';
-    protected static $defaultDescription = 'Упаковать проект в PHAR. Легко распространяемый PHP-архив.';
+    protected static $defaultDescription = 'Упаковать проект в PHAR';
 
     protected string $buildDir = '';
 

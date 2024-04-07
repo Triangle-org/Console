@@ -103,7 +103,7 @@ class Console extends Application
             new InputOption('--quiet', '-q', InputOption::VALUE_NONE, 'Не выводить никаких сообщений'),
             new InputOption('--verbose', '-v|vv|vvv', InputOption::VALUE_NONE, 'Увеличьте уровень детализации сообщений: 1 - для обычного вывода, 2 - для более подробного вывода и 3 - для отладки.'),
             new InputOption('--version', '-V', InputOption::VALUE_NONE, 'Показать версию приложения'),
-            new InputOption('--ansi', '', InputOption::VALUE_NEGATABLE, 'Принудительно вывести ANSI (или --no-ansi чтобы отключить ANSI)', null),
+            new InputOption('--ansi', '', InputOption::VALUE_NEGATABLE, 'Принудительно вывести ANSI (--no-ansi чтобы отключить ANSI)', null),
             new InputOption('--no-interaction', '-n', InputOption::VALUE_NONE, 'Не задавайте интерактивных вопросов'),
         ]);
     }
