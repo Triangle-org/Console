@@ -26,21 +26,17 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Commands;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-
+/**
+ * @author Ivan Zorin <ivan@zorin.space>
+ */
 class InstallCommand extends Command
 {
-    protected static ?string $defaultName = 'install';
-    protected static ?string $defaultDescription = 'Запуск устанощика FrameX';
-
-    /**
-     * @return void
-     */
-    protected function configure()
-    {
-    }
+    protected static $defaultName = 'install';
+    protected static $defaultDescription = 'Запуск установщика Triangle';
 
     /**
      * @param InputInterface $input
@@ -49,13 +45,13 @@ class InstallCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output->writeln("Выполнить установку Framex");
+        $output->writeln("Выполняю установку Triangle");
         $install_function = "\\Triangle\\Engine\\Install::install";
         if (is_callable($install_function)) {
             $install_function();
+            $output->writeln("Готово!");
             return self::SUCCESS;
         }
-        $output->writeln('<error>Эта команда требует localzet/framex версии >= 1.0.3</error>');
         return self::FAILURE;
     }
 }

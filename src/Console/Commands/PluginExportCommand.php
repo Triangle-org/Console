@@ -26,22 +26,27 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Commands;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Triangle\Console\Util;
 
+/**
+ * @author walkor <walkor@workerman.net>
+ * @author Ivan Zorin <ivan@zorin.space>
+ */
 class PluginExportCommand extends Command
 {
-    protected static ?string $defaultName = 'plugin:export';
-    protected static ?string $defaultDescription = 'Экспорт плагина';
+    protected static $defaultName = 'plugin:export';
+    protected static $defaultDescription = 'Экспорт плагина';
 
     /**
      * @return void
      */
     protected function configure(): void
     {
-        $this->addOption('name', 'name', InputOption::VALUE_REQUIRED, 'Название плагина (framex/plugin)');
+        $this->addOption('name', 'name', InputOption::VALUE_REQUIRED, 'Название плагина (например, triangle/plugin)');
         $this->addOption('source', 'source', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Папки для экспорта');
     }
 
@@ -123,48 +128,44 @@ class Install
      */
     public static function uninstall()
     {
+        self::uninstallByRelation();
     }
 
     /**
+     * installByRelation
      * @return void
      */
     public static function installByRelation()
     {
-        foreach (static::\$pathRelation as \$source => \$dest) {
+        foreach (static::\$pathRelation as \$source => \$target) {
+            \$sourceFile = __DIR__ . "/\$source";
+            \$targetFile = base_path(\$target);
+
             if (\$pos = strrpos(\$dest, '/')) {
-                \$parentDir = base_path() . '/' . substr(\$dest, 0, \$pos);
+                \$parentDir = base_path(substr(\$source, 0, \$pos));
                 if (!is_dir(\$parentDir)) {
                     mkdir(\$parentDir, 0777, true);
                 }
             }
-            \$sourceFile = __DIR__ . "/\$source";
-            copy_dir(\$sourceFile, base_path() . "/\$dest", true);
-            echo "Создан \$dest\r\n";
-            if (is_file(\$sourceFile)) {
-                @unlink(\$sourceFile);
-            }
+
+            copy_dir(\$sourceFile, \$targetFile);
+            echo "Создан \$targetFile\\r\\n";
         }
     }
 
     /**
+     * uninstallByRelation
      * @return void
      */
     public static function uninstallByRelation()
     {
-        foreach (static::\$pathRelation as \$source => \$dest) {
-            \$path = base_path()."/\$dest";
-            if (!is_dir(\$path) && !is_file(\$path)) {
-                continue;
-            }
-            echo "Удаление \$dest\r\n";
-            if (is_file(\$path) || is_link(\$path)) {
-                @unlink(\$path);
-                continue;
-            }
-            remove_dir(\$path);
+        foreach (static::\$pathRelation as \$source => \$target) {
+            \$targetFile = base_path(\$target);
+            
+            remove_dir(\$targetFile);
+            echo "Удалён \$target\\r\\n";
         }
     }
-    
 }
 EOT;
         file_put_contents("$dest_dir/Install.php", $install_php_content);

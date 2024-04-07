@@ -26,21 +26,26 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Commands;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\{InputInterface, InputOption};
 use Symfony\Component\Console\Output\OutputInterface;
 use Triangle\Console\Util;
 
+/**
+ * @author walkor <walkor@workerman.net>
+ * @author Ivan Zorin <ivan@zorin.space>
+ */
 class PluginCreateCommand extends Command
 {
-    protected static ?string $defaultName = 'plugin:create';
-    protected static ?string $defaultDescription = 'Создать плагин';
+    protected static $defaultName = 'plugin:create';
+    protected static $defaultDescription = 'Создать плагин';
 
     /**
      * @return void
      */
     protected function configure(): void
     {
-        $this->addOption('name', 'name', InputOption::VALUE_REQUIRED, 'Название плагина (framex/plugin)');
+        $this->addOption('name', 'name', InputOption::VALUE_REQUIRED, 'Название плагина (например, triangle/plugin)');
     }
 
     /**
@@ -142,7 +147,7 @@ EOF;
   "name": "$name",
   "type": "library",
   "license": "MIT",
-  "description": "FrameX plugin $name",
+  "description": "Triangle Plugin $name",
   "require": {
   },
   "autoload": {
@@ -205,15 +210,19 @@ class Install
      */
     public static function installByRelation()
     {
-        foreach (static::\$pathRelation as \$source => \$dest) {
+        foreach (static::\$pathRelation as \$source => \$target) {
+            \$sourceFile = __DIR__ . "/\$source";
+            \$targetFile = base_path(\$target);
+
             if (\$pos = strrpos(\$dest, '/')) {
-                \$parent_dir = base_path().'/'.substr(\$dest, 0, \$pos);
-                if (!is_dir(\$parent_dir)) {
-                    mkdir(\$parent_dir, 0777, true);
+                \$parentDir = base_path(substr(\$source, 0, \$pos));
+                if (!is_dir(\$parentDir)) {
+                    mkdir(\$parentDir, 0777, true);
                 }
             }
-            //symlink(__DIR__ . "/\$source", base_path()."/\$dest");
-            copy_dir(__DIR__ . "/\$source", base_path()."/\$dest");
+
+            copy_dir(\$sourceFile, \$targetFile);
+            echo "Создан \$targetFile\\r\\n";
         }
     }
 
@@ -222,11 +231,11 @@ class Install
      */
     public static function uninstallByRelation()
     {
-        foreach (static::\$pathRelation as \$source => \$dest) {
-            /*if (is_link(base_path()."/\$dest")) {
-                unlink(base_path()."/\$dest");
-            }*/
-            remove_dir(base_path()."/\$dest");
+        foreach (static::\$pathRelation as \$source => \$target) {
+            \$targetFile = base_path(\$target);
+            
+            remove_dir(\$targetFile);
+            echo "Удалён \$target\\r\\n";
         }
     }
 }

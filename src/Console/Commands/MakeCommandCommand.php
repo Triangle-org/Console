@@ -26,13 +26,18 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Commands;
 
-use Triangle\Console\{Input\InputArgument, Input\InputInterface, Output\OutputInterface};
+use Symfony\Component\Console\{Input\InputArgument, Input\InputInterface, Output\OutputInterface};
+use Symfony\Component\Console\Command\Command;
+use Triangle\Console\Util;
 
-
+/**
+ * @author walkor <walkor@workerman.net>
+ * @author Ivan Zorin <ivan@zorin.space>
+ */
 class MakeCommandCommand extends Command
 {
-    protected static ?string $defaultName = 'make:command';
-    protected static ?string $defaultDescription = 'Добавить команду';
+    protected static $defaultName = 'make:command';
+    protected static $defaultDescription = 'Добавить команду';
 
     /**
      * @return void
@@ -51,22 +56,27 @@ class MakeCommandCommand extends Command
     {
         $command = $name = $input->getArgument('name');
         $output->writeln("Создание команды $name");
-        if (!($pos = strrpos($name, '/'))) {
-            $name = $this->getClassName($name);
-            $file = "app/command/$name.php";
-            $namespace = 'app\command';
-        } else {
-            $path = 'app/' . substr($name, 0, $pos) . '/command';
-            $name = $this->getClassName(substr($name, $pos + 1));
-            $file = "$path/$name.php";
-            $namespace = str_replace('/', '\\', $path);
+
+        $name = str_replace(['\\', '/'], '', $name);
+        if (!$command_str = Util::guessPath(app_path(), 'command')) {
+            $command_str = Util::guessPath(app_path(), 'controller') === 'Controller' ? 'Command' : 'command';
         }
+        $items = explode(':', $name);
+        $name = '';
+        foreach ($items as $item) {
+            $name .= ucfirst($item);
+        }
+        $file = app_path() . "/$command_str/$name.php";
+        $upper = $command_str === 'Command';
+        $namespace = $upper ? 'App\Command' : 'app\command';
+
         $this->createCommand($name, $namespace, $file, $command);
+        $output->writeln("Готово!");
 
         return self::SUCCESS;
     }
 
-    protected function getClassName($name): string
+    protected function getClassName($name)
     {
         return preg_replace_callback('/:([a-zA-Z])/', function ($matches) {
                 return strtoupper($matches[1]);
@@ -92,12 +102,11 @@ class MakeCommandCommand extends Command
 
 namespace $namespace;
 
-use Triangle\Console\Commands\Command;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
-
 
 class $name extends Command
 {
@@ -123,7 +132,6 @@ class $name extends Command
         \$output->writeln('Выполнена команда $command');
         return self::SUCCESS;
     }
-
 }
 
 EOF;

@@ -26,8 +26,6 @@ declare(strict_types=1);
 
 namespace Triangle\Console;
 
-use Doctrine\Inflector\InflectorFactory;
-
 /**
  *
  */

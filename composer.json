@@ -29,5 +29,8 @@
   "require": {
     "symfony/console": ">=5.0",
     "doctrine/inflector": "^2.0"
+  },
+  "suggest": {
+    "ext-zip": "For build bin"
   }
 }

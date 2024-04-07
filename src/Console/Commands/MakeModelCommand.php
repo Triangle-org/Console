@@ -26,14 +26,24 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Commands;
 
+use Doctrine\Inflector\InflectorFactory;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
-use Symfony\Component\Console\{Input\InputArgument, Input\InputInterface, Console\Output\OutputInterface, Console\Util};
+use Triangle\Console\Util;
+use Triangle\Engine\Database\Manager;
 
-
+/**
+ * @author walkor <walkor@workerman.net>
+ * @author Ivan Zorin <ivan@zorin.space>
+ */
 class MakeModelCommand extends Command
 {
-    protected static ?string $defaultName = 'make:model';
-    protected static ?string $defaultDescription = 'Создать модель';
+    protected static $defaultName = 'make:model';
+    protected static $defaultDescription = 'Создать модель';
 
     /**
      * @return void
@@ -41,6 +51,8 @@ class MakeModelCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('name', InputArgument::REQUIRED, 'Название модели');
+        $this->addOption('connection', 'c', InputOption::VALUE_OPTIONAL, 'Соединение с БД. ');
+
     }
 
     /**
@@ -50,19 +62,39 @@ class MakeModelCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $class = $input->getArgument('name');
-        $class = Util::nameToClass($class);
-        $output->writeln("Создание модели $class");
-        if (!($pos = strrpos($class, '/'))) {
-            $file = "app/model/$class.php";
-            $namespace = 'app\model';
+        $name = $input->getArgument('name');
+        $name = Util::nameToClass($name);
+        $connection = $input->getOption('connection');
+        $output->writeln("Создание модели $name");
+
+        if (!($pos = strrpos($name, '/'))) {
+            $name = ucfirst($name);
+            $model_str = Util::guessPath(app_path(), 'model') ?: 'model';
+            $file = app_path() . "/$model_str/$name.php";
+            $namespace = $model_str === 'Model' ? 'App\Model' : 'app\model';
         } else {
-            $path = 'app/' . substr($class, 0, $pos) . '/model';
-            $class = ucfirst(substr($class, $pos + 1));
-            $file = "$path/$class.php";
-            $namespace = str_replace('/', '\\', $path);
+            $name_str = substr($name, 0, $pos);
+            if ($real_name_str = Util::guessPath(app_path(), $name_str)) {
+                $name_str = $real_name_str;
+            } else if ($real_section_name = Util::guessPath(app_path(), strstr($name_str, '/', true))) {
+                $upper = strtolower($real_section_name[0]) !== $real_section_name[0];
+            } else if ($real_base_controller = Util::guessPath(app_path(), 'controller')) {
+                $upper = strtolower($real_base_controller[0]) !== $real_base_controller[0];
+            }
+            $upper = $upper ?? strtolower($name_str[0]) !== $name_str[0];
+            if ($upper && !$real_name_str) {
+                $name_str = preg_replace_callback('/\/([a-z])/', function ($matches) {
+                    return '/' . strtoupper($matches[1]);
+                }, ucfirst($name_str));
+            }
+            $path = "$name_str/" . ($upper ? 'Model' : 'model');
+            $name = ucfirst(substr($name, $pos + 1));
+            $file = app_path() . "/$path/$name.php";
+            $namespace = str_replace('/', '\\', ($upper ? 'App/' : 'app/') . $path);
         }
-        $this->createModel($class, $namespace, $file);
+
+        $this->createModel($name, $namespace, $file, $connection);
+        $output->writeln("Готово!");
 
         return self::SUCCESS;
     }
@@ -71,9 +103,10 @@ class MakeModelCommand extends Command
      * @param $class
      * @param $namespace
      * @param $file
+     * @param null $connection
      * @return void
      */
-    protected function createModel($class, $namespace, $file): void
+    protected function createModel($class, $namespace, $file, $connection = null)
     {
         $path = pathinfo($file, PATHINFO_DIRNAME);
         if (!is_dir($path)) {
@@ -82,30 +115,58 @@ class MakeModelCommand extends Command
         $table = Util::classToName($class);
         $table_val = 'null';
         $pk = 'id';
+        $properties = '';
+        $connection = $connection ?: 'mysql';
         try {
-            if (db()->get("{$table}s")) {
-                $table = "{$table}s";
-            } else if (db()->get($table)) {
+            $prefix = config("database.connections.$connection.prefix") ?? '';
+            $database = config("database.connections.$connection.database");
+            $inflector = InflectorFactory::create()->build();
+            $table_plura = $inflector->pluralize($inflector->tableize($class));
+            $con = Manager::connection($connection);
+            if ($con->select("show tables like '{$prefix}{$table_plura}'")) {
                 $table_val = "'$table'";
-                $table = "$table";
+                $table = "{$prefix}{$table_plura}";
+            } else if ($con->select("show tables like '{$prefix}{$table}'")) {
+                $table_val = "'$table'";
+                $table = "{$prefix}{$table}";
             }
-            foreach (db()->orderBy('id', 'desc')->get($table) as $item) {
-                if ($item->Key === 'PRI') {
-                    $pk = $item->Field;
-                    break;
+            $tableComment = $con->select('SELECT table_comment FROM information_schema.`TABLES` WHERE table_schema = ? AND table_name = ?', [$database, $table]);
+            if (!empty($tableComment)) {
+                $comments = $tableComment[0]->table_comment ?? $tableComment[0]->TABLE_COMMENT;
+                $properties .= " * {$table} {$comments}" . PHP_EOL;
+            }
+            foreach ($con->select("select COLUMN_NAME,DATA_TYPE,COLUMN_KEY,COLUMN_COMMENT from INFORMATION_SCHEMA.COLUMNS where table_name = '$table' and table_schema = '$database' ORDER BY ordinal_position") as $item) {
+                if ($item->COLUMN_KEY === 'PRI') {
+                    $pk = $item->COLUMN_NAME;
+                    $item->COLUMN_COMMENT .= "(первичный ключ)";
                 }
+                $type = $this->getType($item->DATA_TYPE);
+                $properties .= " * @property $type \${$item->COLUMN_NAME} {$item->COLUMN_COMMENT}\n";
             }
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            echo $e->getMessage() . PHP_EOL;
         }
+
+        $properties = rtrim($properties) ?: ' *';
         $model_content = <<<EOF
 <?php
 
 namespace $namespace;
 
-use support\Model;
+use Triangle\\Engine\\Database\\Model;
 
+/**
+$properties
+ */
 class $class extends Model
 {
+    /**
+     * Соединение для модели
+     *
+     * @var string|null
+     */
+    protected \$connection = '$connection';
+    
     /**
      * Таблица, связанная с моделью.
      *
@@ -132,5 +193,22 @@ class $class extends Model
 
 EOF;
         file_put_contents($file, $model_content);
+    }
+
+    /**
+     * @param string $type
+     * @return string
+     */
+    protected function getType(string $type): string
+    {
+        if (str_contains($type, 'int')) {
+            return 'integer';
+        }
+        return match ($type) {
+            'varchar', 'string', 'text', 'date', 'time', 'guid', 'datetimetz', 'datetime', 'decimal', 'enum' => 'string',
+            'boolean' => 'integer',
+            'float' => 'float',
+            default => 'mixed',
+        };
     }
 }

@@ -28,11 +28,12 @@ namespace Triangle;
 
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use SplFileInfo;
+use ReflectionClass;
 use RuntimeException;
+use SplFileInfo;
+use support\Container;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as Commands;
-use support\Container;
 
 /**
  *
@@ -41,7 +42,7 @@ class Console extends Application
 {
     public function installInternalCommands()
     {
-        $this->installCommands(__DIR__ . '/Commands', 'Triangle\Console\Commands');
+        $this->installCommands(__DIR__ . '/Console/Commands', 'Triangle\Console\Commands');
     }
 
     /**
@@ -66,13 +67,13 @@ class Console extends Application
             $relativePath = str_replace(str_replace('/', '\\', $path . '\\'), '', str_replace('/', '\\', $file->getRealPath()));
             // app\command\abc
             $realNamespace = trim($namspace . '\\' . trim(dirname(str_replace('\\', DIRECTORY_SEPARATOR, $relativePath)), '.'), '\\');
-            $realNamespace =  str_replace('/', '\\', $realNamespace);
+            $realNamespace = str_replace('/', '\\', $realNamespace);
             // app\command\doc\def
             $class_name = trim($realNamespace . '\\' . $file->getBasename('.php'), '\\');
             if (!class_exists($class_name) || !is_a($class_name, Commands::class, true)) {
                 continue;
             }
-            $reflection = new \ReflectionClass($class_name);
+            $reflection = new ReflectionClass($class_name);
             if ($reflection->isAbstract()) {
                 continue;
             }

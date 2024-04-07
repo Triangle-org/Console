@@ -26,13 +26,20 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Commands;
 
-use Symfony\Component\Console\{Input\InputArgument, Input\InputInterface, Output\OutputInterface};
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Triangle\Console\Util;
 
-
+/**
+ * @author walkor <walkor@workerman.net>
+ * @author Ivan Zorin <ivan@zorin.space>
+ */
 class MakeMiddlewareCommand extends Command
 {
-    protected static ?string $defaultName = 'make:middleware';
-    protected static ?string $defaultDescription = 'Создать промежуточное ПО';
+    protected static $defaultName = 'make:middleware';
+    protected static $defaultDescription = 'Создать промежуточное ПО';
 
     /**
      * @return void
@@ -51,17 +58,33 @@ class MakeMiddlewareCommand extends Command
     {
         $name = $input->getArgument('name');
         $output->writeln("Создание промежуточного класса $name");
+
+        $name = str_replace('\\', '/', $name);
+        if (!$middleware_str = Util::guessPath(app_path(), 'middleware')) {
+            $middleware_str = Util::guessPath(app_path(), 'controller') === 'Controller' ? 'Middleware' : 'middleware';
+        }
+        $upper = $middleware_str === 'Middleware';
         if (!($pos = strrpos($name, '/'))) {
             $name = ucfirst($name);
-            $file = "app/middleware/$name.php";
-            $namespace = 'app\middleware';
+            $file = app_path() . "/$middleware_str/$name.php";
+            $namespace = $upper ? 'App\Middleware' : 'app\middleware';
         } else {
-            $path = 'app/middleware/' . substr($name, 0, $pos);
+            if ($real_name = Util::guessPath(app_path(), $name)) {
+                $name = $real_name;
+            }
+            if ($upper && !$real_name) {
+                $name = preg_replace_callback('/\/([a-z])/', function ($matches) {
+                    return '/' . strtoupper($matches[1]);
+                }, ucfirst($name));
+            }
+            $path = "$middleware_str/" . substr($upper ? ucfirst($name) : $name, 0, $pos);
             $name = ucfirst(substr($name, $pos + 1));
-            $file = "$path/$name.php";
-            $namespace = str_replace('/', '\\', $path);
+            $file = app_path() . "/$path/$name.php";
+            $namespace = str_replace('/', '\\', ($upper ? 'App/' : 'app/') . $path);
         }
+
         $this->createMiddleware($name, $namespace, $file);
+        $output->writeln("Готово!");
 
         return self::SUCCESS;
     }

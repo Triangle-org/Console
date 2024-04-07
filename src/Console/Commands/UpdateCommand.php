@@ -26,20 +26,31 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Commands;
 
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
 /**
- * Interface for command reacting to signal.
- *
- * @author Grégoire Pineau <lyrixx@lyrix.info>
+ * @author Ivan Zorin <ivan@zorin.space>
  */
-interface SignalableCommandInterface
+class UpdateCommand extends Command
 {
-    /**
-     * Returns the list of signals to subscribe.
-     */
-    public function getSubscribedSignals(): array;
+    protected static $defaultName = 'update';
+    protected static $defaultDescription = 'Запуск обновления Triangle';
 
     /**
-     * The method will be called when the application is signaled.
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int
      */
-    public function handleSignal(int $signal): void;
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $output->writeln("Выполнить установку Triangle");
+        $install_function = "\\Triangle\\Engine\\Install::update";
+        if (is_callable($install_function)) {
+            $install_function();
+            return self::SUCCESS;
+        }
+        return self::FAILURE;
+    }
 }

@@ -27,15 +27,20 @@ declare(strict_types=1);
 namespace Triangle\Console\Commands;
 
 use Closure;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Triangle\Engine\Route;
+use Triangle\Engine\Router;
 
+/**
+ * @author walkor <walkor@workerman.net>
+ * @author Ivan Zorin <ivan@zorin.space>
+ */
 class RouteListCommand extends Command
 {
-    protected static ?string $defaultName = 'route:list';
-    protected static ?string $defaultDescription = 'Список маршрутов';
+    protected static $defaultName = 'route:list';
+    protected static $defaultDescription = 'Список маршрутов';
 
     /**
      * @param InputInterface $input
@@ -44,14 +49,13 @@ class RouteListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        Route::load(config_path());
-        $headers = ['uri', 'method', 'callback', 'middleware'];
+        $headers = ['uri', 'method', 'callback', 'middleware', 'name'];
         $rows = [];
-        foreach (Route::getRoutes() as $route) {
+        foreach (Router::getRoutes() as $route) {
             foreach ($route->getMethods() as $method) {
                 $cb = $route->getCallback();
                 $cb = $cb instanceof Closure ? 'Closure' : (is_array($cb) ? json_encode($cb) : var_export($cb, true));
-                $rows[] = [$route->getPath(), $method, $cb, json_encode($route->getMiddleware() ?: null)];
+                $rows[] = [$route->getPath(), $method, $cb, json_encode($route->getMiddleware() ?: null), $route->getName()];
             }
         }
 

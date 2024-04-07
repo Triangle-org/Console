@@ -26,20 +26,17 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Commands;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @author Ivan Zorin <ivan@zorin.space>
+ */
 class DisableCommand extends Command
 {
-    protected static ?string $defaultName = 'supervisor:disable|disable';
-    protected static ?string $defaultDescription = 'Удалить проект из автозагрузки';
-
-    /**
-     * @return void
-     */
-    protected function configure()
-    {
-    }
+    protected static $defaultName = 'supervisor:disable|disable';
+    protected static $defaultDescription = 'Удалить проект из автозагрузки';
 
     /**
      * @param InputInterface $input

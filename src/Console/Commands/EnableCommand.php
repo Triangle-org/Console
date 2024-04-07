@@ -26,20 +26,17 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Commands;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @author Ivan Zorin <ivan@zorin.space>
+ */
 class EnableCommand extends Command
 {
-    protected static ?string $defaultName = 'supervisor:enable|enable';
-    protected static ?string $defaultDescription = 'Добавить проект в автозагрузку';
-
-    /**
-     * @return void
-     */
-    protected function configure()
-    {
-    }
+    protected static $defaultName = 'supervisor:enable|enable';
+    protected static $defaultDescription = 'Добавить проект в автозагрузку';
 
     /**
      * @param InputInterface $input

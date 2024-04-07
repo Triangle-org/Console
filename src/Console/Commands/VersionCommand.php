@@ -26,13 +26,17 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Commands;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @author Ivan Zorin <ivan@zorin.space>
+ */
 class VersionCommand extends Command
 {
-    protected static ?string $defaultName = 'version';
-    protected static ?string $defaultDescription = 'Показать версии Triangle';
+    protected static $defaultName = 'version';
+    protected static $defaultDescription = 'Показать версии Triangle';
 
     /**
      * @param InputInterface $input
@@ -56,6 +60,10 @@ class VersionCommand extends Command
                     case 'localzet/core':
                     case 'localzet/server':
                         $out = 'Сервер:     Localzet Server';
+                        break;
+                    case 'zorin/core':
+                    case 'zorin/server':
+                        $out = 'Сервер:     Zorin Server';
                         break;
 
                     // Engine

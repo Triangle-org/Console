@@ -26,20 +26,25 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Commands;
 
-use Triangle\Console\{Input\InputArgument, Input\InputInterface, Output\OutputInterface};
+use Symfony\Component\Console\{Input\InputArgument, Input\InputInterface, Output\OutputInterface};
+use Symfony\Component\Console\Command\Command;
+use Triangle\Console\Util;
 
-
+/**
+ * @author walkor <walkor@workerman.net>
+ * @author Ivan Zorin <ivan@zorin.space>
+ */
 class MakeBootstrapCommand extends Command
 {
-    protected static ?string $defaultName = 'make:bootstrap';
-    protected static ?string $defaultDescription = 'Добавить класс в автозагрузку';
+    protected static $defaultName = 'make:bootstrap';
+    protected static $defaultDescription = 'Добавить класс автозагрузки';
 
     public function addConfig($class, $config_file): void
     {
         $config = include $config_file;
         if (!in_array($class, $config ?? [])) {
             $config_file_content = file_get_contents($config_file);
-            $config_file_content = preg_replace('/];/', "    $class::class,\n];", $config_file_content);
+            $config_file_content = preg_replace('/\];/', "    $class::class,\n];", $config_file_content);
             file_put_contents($config_file, $config_file_content);
         }
     }
@@ -49,7 +54,9 @@ class MakeBootstrapCommand extends Command
      */
     protected function configure(): void
     {
-        $this->addArgument('name', InputArgument::REQUIRED, 'Название класса для автозагрузки');
+        $this->addArgument('name', InputArgument::REQUIRED, 'Название класса автозагрузки');
+        $this->addArgument('enable', InputArgument::OPTIONAL, 'Активировать сразу?');
+
     }
 
     /**
@@ -60,19 +67,39 @@ class MakeBootstrapCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $name = $input->getArgument('name');
+        $enable = !in_array($input->getArgument('enable'), ['no', '0', 'false', 'n']);
         $output->writeln("Создание загрузчика $name");
+
+        $name = str_replace('\\', '/', $name);
+        if (!$bootstrap_str = Util::guessPath(app_path(), 'bootstrap')) {
+            $bootstrap_str = Util::guessPath(app_path(), 'controller') === 'Controller' ? 'Bootstrap' : 'bootstrap';
+        }
+        $upper = $bootstrap_str === 'Bootstrap';
         if (!($pos = strrpos($name, '/'))) {
             $name = ucfirst($name);
-            $file = "app/bootstrap/$name.php";
-            $namespace = 'app\bootstrap';
+            $file = app_path() . "/$bootstrap_str/$name.php";
+            $namespace = $upper ? 'App\Bootstrap' : 'app\bootstrap';
         } else {
-            $path = 'app/' . substr($name, 0, $pos) . '/bootstrap';
+            if ($real_name = Util::guessPath(app_path(), $name)) {
+                $name = $real_name;
+            }
+            if ($upper && !$real_name) {
+                $name = preg_replace_callback('/\/([a-z])/', function ($matches) {
+                    return '/' . strtoupper($matches[1]);
+                }, ucfirst($name));
+            }
+            $path = "$bootstrap_str/" . substr($upper ? ucfirst($name) : $name, 0, $pos);
             $name = ucfirst(substr($name, $pos + 1));
-            $file = "$path/$name.php";
-            $namespace = str_replace('/', '\\', $path);
+            $file = app_path() . "/$path/$name.php";
+            $namespace = str_replace('/', '\\', ($upper ? 'App/' : 'app/') . $path);
         }
+
         $this->createBootstrap($name, $namespace, $file);
-        //$this->addConfig("$namespace\\$name", config_path() . '/bootstrap.php');
+        $output->writeln("Готово!");
+
+        if ($enable) {
+            $this->addConfig("$namespace\\$name", config_path() . '/bootstrap.php');
+        }
 
         return self::SUCCESS;
     }
@@ -100,9 +127,13 @@ class $name implements Bootstrap
 {
     public static function start(\$server)
     {
-        
+        // Это консольная среда?
+        \$is_console = !\$server;
+        if (\$is_console) {
+            // Если вы не хотите выполнять это в консоли, просто ничего не делайте.
+            return;
+        }
     }
-
 }
 
 EOF;

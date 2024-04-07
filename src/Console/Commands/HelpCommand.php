@@ -26,44 +26,14 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Commands;
 
-use Triangle\Console\{Completion\CompletionInput,
-    Completion\CompletionSuggestions,
-    Descriptor\ApplicationDescription,
-    Helper\DescriptorHelper,
-    Input\InputArgument,
-    Input\InputInterface,
-    Input\InputOption,
-    Output\OutputInterface};
+use Symfony\Component\Console\{Input\InputArgument, Input\InputOption};
 
 /**
- * HelpCommand displays the help for a given command.
- *
  * @author Fabien Potencier <fabien@symfony.com>
+ * @author Ivan Zorin <ivan@zorin.space>
  */
-class HelpCommand extends Command
+class HelpCommand extends \Symfony\Component\Console\Command\HelpCommand
 {
-    private $command;
-
-    public function setCommand(Command $command): void
-    {
-        $this->command = $command;
-    }
-
-    public function complete(CompletionInput $input, CompletionSuggestions $suggestions): void
-    {
-        if ($input->mustSuggestArgumentValuesFor('command_name')) {
-            $descriptor = new ApplicationDescription($this->getApplication());
-            $suggestions->suggestValues(array_keys($descriptor->getCommands()));
-
-            return;
-        }
-
-        if ($input->mustSuggestOptionValuesFor('format')) {
-            $helper = new DescriptorHelper();
-            $suggestions->suggestValues($helper->getFormats());
-        }
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -76,7 +46,7 @@ class HelpCommand extends Command
             ->setDefinition([
                 new InputArgument('command_name', InputArgument::OPTIONAL, 'Название команды', 'help'),
                 new InputOption('format', null, InputOption::VALUE_REQUIRED, 'Формат вывода (txt, xml, json, or md)', 'txt'),
-                new InputOption('raw', null, InputOption::VALUE_NONE, 'Черновой вывод справки'),
+                new InputOption('raw', null, InputOption::VALUE_NONE, 'Вывести необработанную справку'),
             ])
             ->setDescription('Отображает справку о командах')
             ->setHelp(<<<'EOF'
@@ -91,25 +61,5 @@ class HelpCommand extends Command
 Для отображения списка доступных команд используйте команду "<info>list</info>".
 EOF
             );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        if (null === $this->command) {
-            $this->command = $this->getApplication()->find($input->getArgument('command_name'));
-        }
-
-        $helper = new DescriptorHelper();
-        $helper->describe($output, $this->command, [
-            'format' => $input->getOption('format'),
-            'raw_text' => $input->getOption('raw'),
-        ]);
-
-        $this->command = null;
-
-        return 0;
     }
 }

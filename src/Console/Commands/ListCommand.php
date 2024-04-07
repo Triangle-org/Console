@@ -26,37 +26,14 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Commands;
 
-use Triangle\Console\{Completion\CompletionInput,
-    Completion\CompletionSuggestions,
-    Descriptor\ApplicationDescription,
-    Helper\DescriptorHelper,
-    Input\InputArgument,
-    Input\InputInterface,
-    Input\InputOption,
-    Output\OutputInterface};
+use Symfony\Component\Console\{Input\InputArgument, Input\InputOption};
 
 /**
- * ListCommand displays the list of all available commands for the application.
- *
  * @author Fabien Potencier <fabien@symfony.com>
+ * @author Ivan Zorin <ivan@zorin.space>
  */
-class ListCommand extends Command
+class ListCommand extends \Symfony\Component\Console\Command\ListCommand
 {
-    public function complete(CompletionInput $input, CompletionSuggestions $suggestions): void
-    {
-        if ($input->mustSuggestArgumentValuesFor('namespace')) {
-            $descriptor = new ApplicationDescription($this->getApplication());
-            $suggestions->suggestValues(array_keys($descriptor->getNamespaces()));
-
-            return;
-        }
-
-        if ($input->mustSuggestOptionValuesFor('format')) {
-            $helper = new DescriptorHelper();
-            $suggestions->suggestValues($helper->getFormats());
-        }
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -66,44 +43,28 @@ class ListCommand extends Command
             ->setName('list')
             ->setDefinition([
                 new InputArgument('namespace', InputArgument::OPTIONAL, 'Имя пространства'),
-                new InputOption('raw', null, InputOption::VALUE_NONE, 'Чтобы вывести необработанный список команд'),
+                new InputOption('raw', null, InputOption::VALUE_NONE, 'Вывести необработанный список команд'),
                 new InputOption('format', null, InputOption::VALUE_REQUIRED, 'Выходной формат (txt, xml, json или md)', 'txt'),
                 new InputOption('short', null, InputOption::VALUE_NONE, 'Пропустить описание аргументов команд'),
             ])
             ->setDescription('Список команд')
             ->setHelp(<<<'EOF'
-The <info>%command.name%</info> command lists all commands:
+Команда <info>%command.name%</info> отображает список всех команд:
 
   <info>%command.full_name%</info>
 
-You can also display the commands for a specific namespace:
+Также можно получить список команд в определённом пространстве, например:
 
-  <info>%command.full_name% test</info>
+  <info>%command.full_name% build</info>
 
-You can also output the information in other formats by using the <comment>--format</comment> option:
+Вы можете получить вывод в разных форматах, используя опцию <comment>--format</comment>:
 
   <info>%command.full_name% --format=xml</info>
 
-It's also possible to get raw list of commands (useful for embedding command runner):
+Также можно получить необработанный список команд (полезно для встроенных средств запуска команд):
 
   <info>%command.full_name% --raw</info>
 EOF
             );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $helper = new DescriptorHelper();
-        $helper->describe($output, $this->getApplication(), [
-            'format' => $input->getOption('format'),
-            'raw_text' => $input->getOption('raw'),
-            'namespace' => $input->getArgument('namespace'),
-            'short' => $input->getOption('short'),
-        ]);
-
-        return 0;
     }
 }
