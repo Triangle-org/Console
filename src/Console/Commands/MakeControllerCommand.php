@@ -107,7 +107,7 @@ class MakeControllerCommand extends Command
     {
         $path = pathinfo($file, PATHINFO_DIRNAME);
         if (!is_dir($path)) {
-            mkdir($path, 0777, true);
+            create_dir($path);
         }
         $controller_content = <<<EOF
 <?php

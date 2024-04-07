@@ -33,7 +33,7 @@ class BuildPharCommand extends Command
     {
         $this->checkEnv();
         if (!file_exists($this->buildDir) && !is_dir($this->buildDir)) {
-            if (!mkdir($this->buildDir, 0777, true)) {
+            if (!create_dir($this->buildDir)) {
                 throw new RuntimeException("Не удалось создать выходной каталог phar-файла. Пожалуйста, проверьте разрешение.");
             }
         }

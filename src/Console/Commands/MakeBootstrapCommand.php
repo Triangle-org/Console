@@ -114,7 +114,7 @@ class MakeBootstrapCommand extends Command
     {
         $path = pathinfo($file, PATHINFO_DIRNAME);
         if (!is_dir($path)) {
-            mkdir($path, 0777, true);
+            create_dir($path);
         }
         $bootstrap_content = <<<EOF
 <?php

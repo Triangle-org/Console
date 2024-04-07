@@ -56,13 +56,13 @@ class AppCreateCommand extends Command
     protected function createAll($name): void
     {
         $base_path = base_path();
-        $this->mkdir("$base_path/plugin/$name/app/controller", 0777, true);
-        $this->mkdir("$base_path/plugin/$name/app/model", 0777, true);
-        $this->mkdir("$base_path/plugin/$name/app/middleware", 0777, true);
-        $this->mkdir("$base_path/plugin/$name/app/view/index", 0777, true);
-        $this->mkdir("$base_path/plugin/$name/config", 0777, true);
-        $this->mkdir("$base_path/plugin/$name/public", 0777, true);
-        $this->mkdir("$base_path/plugin/$name/api", 0777, true);
+        $this->mkdir("$base_path/plugin/$name/app/controller");
+        $this->mkdir("$base_path/plugin/$name/app/model");
+        $this->mkdir("$base_path/plugin/$name/app/middleware");
+        $this->mkdir("$base_path/plugin/$name/app/view/index");
+        $this->mkdir("$base_path/plugin/$name/config");
+        $this->mkdir("$base_path/plugin/$name/public");
+        $this->mkdir("$base_path/plugin/$name/api");
         $this->createFunctionsFile("$base_path/plugin/$name/app/functions.php");
         $this->createControllerFile("$base_path/plugin/$name/app/controller/IndexController.php", $name);
         $this->createConfigFiles("$base_path/plugin/$name/config", $name);
@@ -70,17 +70,15 @@ class AppCreateCommand extends Command
 
     /**
      * @param string $directory
-     * @param int $permissions
-     * @param bool $recursive
      * @return void
      */
-    protected function mkdir(string $directory, int $permissions = 0777, bool $recursive = true): void
+    protected function mkdir(string $directory): void
     {
         if (is_dir($directory)) {
             return;
         }
         echo "Создание $directory\r\n";
-        mkdir($directory, $permissions, $recursive);
+        create_dir($directory);
     }
 
     /**

@@ -77,7 +77,7 @@ class PluginExportCommand extends Command
         foreach ($path_relations as $source) {
             $base_path = pathinfo("$dest/$source", PATHINFO_DIRNAME);
             if (!is_dir($base_path)) {
-                mkdir($base_path, 0777, true);
+                create_dir($base_path);
             }
             $output->writeln("<info>Копирую $source в $dest/$source </info>");
             copy_dir($source, "$dest/$source");
@@ -95,7 +95,7 @@ class PluginExportCommand extends Command
     protected function writeInstallFile($namespace, $path_relations, $dest_dir): void
     {
         if (!is_dir($dest_dir)) {
-            mkdir($dest_dir, 0777, true);
+            create_dir($dest_dir);
         }
         $relations = [];
         foreach ($path_relations as $relation) {
@@ -116,35 +116,45 @@ class Install
     protected static \$pathRelation = $relations;
 
     /**
+     * Установка плагина
      * @return void
      */
-    public static function install()
+    public static function install(): void
+    {
+        static::installByRelation();
+    }
+    
+    /**
+     * Обновление плагина
+     * @return void
+     */
+    public static function update(): void
     {
         static::installByRelation();
     }
 
     /**
+     * Удаление плагина
      * @return void
      */
-    public static function uninstall()
+    public static function uninstall(): void
     {
         self::uninstallByRelation();
     }
 
     /**
-     * installByRelation
      * @return void
      */
-    public static function installByRelation()
+    public static function installByRelation(): void
     {
         foreach (static::\$pathRelation as \$source => \$target) {
             \$sourceFile = __DIR__ . "/\$source";
             \$targetFile = base_path(\$target);
 
             if (\$pos = strrpos(\$target, '/')) {
-                \$parentDir = base_path(substr(\$source, 0, \$pos));
+                \$parentDir = base_path(substr(\$target, 0, \$pos));
                 if (!is_dir(\$parentDir)) {
-                    mkdir(\$parentDir, 0777, true);
+                    create_dir(\$parentDir);
                 }
             }
 
@@ -154,10 +164,9 @@ class Install
     }
 
     /**
-     * uninstallByRelation
      * @return void
      */
-    public static function uninstallByRelation()
+    public static function uninstallByRelation(): void
     {
         foreach (static::\$pathRelation as \$source => \$target) {
             \$targetFile = base_path(\$target);
