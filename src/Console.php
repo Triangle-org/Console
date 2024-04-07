@@ -70,7 +70,7 @@ class Console extends Application
             }
 
             // abc\def.php
-            $relativePath = str_replace(str_replace('/', '\\', $path . '\\'), '', str_replace('/', '\\', $file->getRealPath()));
+            $relativePath = str_replace(str_replace('/', '\\', $path . '\\'), '', str_replace('/', '\\', $file->getPathname()));
             // app\command\abc
             $realNamespace = trim($namspace . '\\' . trim(dirname(str_replace('\\', DIRECTORY_SEPARATOR, $relativePath)), '.'), '\\');
             $realNamespace = str_replace('/', '\\', $realNamespace);

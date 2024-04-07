@@ -59,7 +59,7 @@ class BuildBinCommand extends BuildPharCommand
         // Загрузка micro.sfx.zip
         if (!is_file($sfxFile) && !is_file($zipFile)) {
             $domain = 'download.workerman.net';
-            $output->writeln("\r\nЗагрузка PHP$version ...");
+            $output->writeln("\r\nЗагрузка PHP v$version ...");
             if (extension_loaded('openssl')) {
                 $context = stream_context_create([
                     'ssl' => [
