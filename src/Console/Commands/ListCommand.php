@@ -34,6 +34,9 @@ use Symfony\Component\Console\{Input\InputArgument, Input\InputOption};
  */
 class ListCommand extends \Symfony\Component\Console\Command\ListCommand
 {
+    protected static $defaultName = 'list';
+    protected static $defaultDescription = 'Список команд';
+
     /**
      * {@inheritdoc}
      */

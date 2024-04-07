@@ -34,6 +34,9 @@ use Symfony\Component\Console\{Input\InputArgument, Input\InputOption};
  */
 class HelpCommand extends \Symfony\Component\Console\Command\HelpCommand
 {
+    protected static $defaultName = 'help';
+    protected static $defaultDescription = 'Отображает справку о командах';
+
     /**
      * {@inheritdoc}
      */
