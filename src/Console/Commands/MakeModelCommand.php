@@ -144,7 +144,7 @@ class MakeModelCommand extends Command
             $columns = $con->getSchemaBuilder()->getColumnListing($table);
             foreach ($columns as $column) {
                 $type = $this->getType($con->getSchemaBuilder()->getColumnType($table, $column));
-                if ($type === 'integer' && $con->getSchemaBuilder()->getColumnListing($table)->autoIncrement) {
+                if ($column === 'id') {
                     $pk = $column;
                 }
                 $properties .= " * @property $type \${$column}\n";
