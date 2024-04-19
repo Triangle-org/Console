@@ -123,25 +123,31 @@ class MakeModelCommand extends Command
             $inflector = InflectorFactory::create()->build();
             $table_plura = $inflector->pluralize($inflector->tableize($class));
             $con = Manager::connection($connection);
-            if ($con->select("show tables like '{$prefix}{$table_plura}'")) {
+            if ($con->getSchemaBuilder()->hasTable("{$prefix}{$table_plura}")) {
                 $table_val = "'$table'";
                 $table = "{$prefix}{$table_plura}";
-            } else if ($con->select("show tables like '{$prefix}{$table}'")) {
+            } else if ($con->getSchemaBuilder()->hasTable("{$prefix}{$table}")) {
                 $table_val = "'$table'";
                 $table = "{$prefix}{$table}";
             }
-            $tableComment = $con->select('SELECT table_comment FROM information_schema.`TABLES` WHERE table_schema = ? AND table_name = ?', [$database, $table]);
-            if (!empty($tableComment)) {
-                $comments = $tableComment[0]->table_comment ?? $tableComment[0]->TABLE_COMMENT;
-                $properties .= " * {$table} {$comments}" . PHP_EOL;
+            if ($connection === 'mysql') {
+                $tableComment = $con->select('SELECT table_comment FROM information_schema.TABLES WHERE table_schema = ? AND table_name = ?', [$database, $table]);
+                $comments = $tableComment[0]->table_comment ?? '';
+            } elseif ($connection === 'pgsql') {
+                $tableComment = $con->select('SELECT obj_description((SELECT oid FROM pg_class WHERE relname = ?), \'pg_class\') as table_comment', [$table]);
+                $comments = $tableComment[0]->table_comment ?? '';
+            } else {
+                // SQLite and SQL Server do not support comments on tables or columns.
+                $comments = '';
             }
-            foreach ($con->select("select COLUMN_NAME,DATA_TYPE,COLUMN_KEY,COLUMN_COMMENT from INFORMATION_SCHEMA.COLUMNS where table_name = '$table' and table_schema = '$database' ORDER BY ordinal_position") as $item) {
-                if ($item->COLUMN_KEY === 'PRI') {
-                    $pk = $item->COLUMN_NAME;
-                    $item->COLUMN_COMMENT .= "(первичный ключ)";
+            $properties .= " * {$table} {$comments}" . PHP_EOL;
+            $columns = $con->getSchemaBuilder()->getColumnListing($table);
+            foreach ($columns as $column) {
+                $type = $this->getType($con->getSchemaBuilder()->getColumnType($table, $column));
+                if ($type === 'integer' && $con->getSchemaBuilder()->getColumnListing($table)->autoIncrement) {
+                    $pk = $column;
                 }
-                $type = $this->getType($item->DATA_TYPE);
-                $properties .= " * @property $type \${$item->COLUMN_NAME} {$item->COLUMN_COMMENT}\n";
+                $properties .= " * @property $type \${$column}\n";
             }
         } catch (Throwable $e) {
             echo $e->getMessage() . PHP_EOL;
