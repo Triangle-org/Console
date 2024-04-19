@@ -1,6 +1,5 @@
 {
   "name": "triangle/console",
-  "version": "v1.2",
   "description": "Triangle Console Component",
   "type": "library",
   "keywords": [
@@ -30,9 +29,6 @@
   "require": {
     "symfony/console": ">=5.0",
     "doctrine/inflector": "^2.0"
-  },
-  "require-dev": {
-    "triangle/engine": ">=5.3.5"
   },
   "suggest": {
     "ext-zip": "For build bin",
