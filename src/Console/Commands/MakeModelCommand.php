@@ -144,8 +144,9 @@ class MakeModelCommand extends Command
             $columns = $con->getSchemaBuilder()->getColumnListing($table);
             foreach ($columns as $column) {
                 $type = $this->getType($con->getSchemaBuilder()->getColumnType($table, $column));
-                if ($type === 'integer' && ($con->getSchemaBuilder()->getColumnListing($table)?->autoIncrement || $column === 'id')) {
-                    $pk = $column;
+                $pk = '';
+                if ($type === 'integer' && $column === 'id') {
+                    $pk = '(первичный ключ)';
                 }
                 $properties .= " * @property $type \${$column}\n";
             }
@@ -212,7 +213,7 @@ EOF;
         }
         return match ($type) {
             'varchar', 'string', 'text', 'date', 'time', 'guid', 'datetimetz', 'datetime', 'decimal', 'enum' => 'string',
-            'boolean' => 'integer',
+            'boolean', 'bool' => 'integer',
             'float' => 'float',
             default => 'mixed',
         };
