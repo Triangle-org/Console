@@ -286,30 +286,39 @@ EOF;
      */
     protected function getType(string $type): string
     {
-        $type = strtolower($type);
-
-        $integerTypes = ['int', 'bit', 'serial'];
-        $floatTypes = ['float', 'double', 'real', 'numeric', 'decimal'];
-        $stringTypes = ['char', 'text', 'date', 'time', 'guid', 'enum', 'cidr', 'inet', 'macaddr', 'tsvector', 'uuid', 'xml', 'json'];
-        $binaryTypes = ['blob', 'binary', 'bytea'];
-
-        if (in_array($type, $integerTypes)) {
+        if (str_contains($type, 'int') || str_contains($type, 'bit') || str_contains($type, 'serial')) {
             return 'integer';
         }
 
-        if (in_array($type, $floatTypes)) {
+        if (str_contains($type, 'float')
+            || str_contains($type, 'double')
+            || str_contains($type, 'real')
+            || str_contains($type, 'numeric')
+            || str_contains($type, 'decimal')) {
             return 'float';
         }
 
-        if ($type === 'bool') {
+        if (str_contains($type, 'bool')) {
             return 'boolean';
         }
 
-        if (in_array($type, $stringTypes)) {
+        if (str_contains($type, 'char')
+            || str_contains($type, 'text')
+            || str_contains($type, 'date')
+            || str_contains($type, 'time')
+            || str_contains($type, 'guid')
+            || str_contains($type, 'enum')
+            || str_contains($type, 'cidr')
+            || str_contains($type, 'inet')
+            || str_contains($type, 'macaddr')
+            || str_contains($type, 'tsvector')
+            || str_contains($type, 'uuid')
+            || str_contains($type, 'xml')
+            || str_contains($type, 'json')) {
             return 'string';
         }
 
-        if (in_array($type, $binaryTypes)) {
+        if (str_contains($type, 'blob') || str_contains($type, 'binary') || str_contains($type, 'bytea')) {
             return 'binary';
         }
 
