@@ -135,54 +135,92 @@ class MakeModelCommand extends Command
 
             $tableColumns = [];
             $comments = '';
-            if ($driver === 'mysql') {
-                $tableComment = $con->select('SELECT table_comment AS comment FROM information_schema.`TABLES` WHERE table_schema = ? AND table_name = ?', [$database, $table]);
+            if ($driver === 'sqlite') {
+                // SQLite не поддерживает комментарии к таблицам
+                $tableColumns = $con->select("SELECT DISTINCT
+                                                        name            AS name,
+                                                        type            AS type,
+                                                        CASE 
+                                                            WHEN pk = 1 
+                                                            THEN 1 
+                                                            ELSE 0 
+                                                        END             AS ispk,
+                                                        '' AS description 
+                                                    FROM pragma_table_info('$table')");
+            } elseif ($driver === 'mysql') {
+                $tableComment = $con->select("SELECT 
+                                                        table_comment AS comment 
+                                                    FROM INFORMATION_SCHEMA.`TABLES` 
+                                                    WHERE TABLE_SCHEMA = '$database' AND TABLE_NAME = '$table'");
                 $comments = $tableComment[0]->comment ?? '';
-                $tableColumns = $con->select("SELECT 
+                $tableColumns = $con->select("SELECT DISTINCT
                                                         COLUMN_NAME     AS name, 
                                                         DATA_TYPE       AS type, 
                                                         CASE 
                                                             WHEN COLUMN_KEY  = 'PRI' 
-                                                            THEN true 
-                                                            ELSE false 
+                                                            THEN 1 
+                                                            ELSE 0 
                                                         END             AS ispk, 
-                                                        COLUMN_COMMENT  AS description
-                                                    FROM information_schema.columns 
-                                                    WHERE table_name = '$table' AND table_schema = '$database' ORDER BY ordinal_position");
+                                                        COLUMN_COMMENT  AS description,
+                                                        ORDINAL_POSITION
+                                                    FROM INFORMATION_SCHEMA.COLUMNS 
+                                                    WHERE TABLE_SCHEMA = '$database' AND TABLE_NAME = '$table'
+                                                    ORDER BY ORDINAL_POSITION");
             } elseif ($driver === 'pgsql') {
-                $tableComment = $con->select('SELECT obj_description(oid) AS comment FROM pg_class WHERE relname = ?', [$table]);
+                $tableComment = $con->select("SELECT 
+                                                        obj_description(oid) AS comment 
+                                                    FROM pg_class 
+                                                    WHERE relname = '$table'");
                 $comments = $tableComment[0]->comment ?? '';
-                $tableColumns = $con->select("SELECT 
-                                                        column_name                 AS name, 
-                                                        data_type                   AS type, 
-                                                        false                       AS ispk, 
-                                                        COALESCE(description, '')   AS description
+                $tableColumns = $con->select("SELECT DISTINCT
+                                                        column_name     AS name, 
+                                                        data_type       AS type, 
+                                                        CASE 
+                                                            WHEN pg_attribute.attnum = ANY (pg_index.indkey) 
+                                                            THEN 1 
+                                                            ELSE 0 
+                                                        END             AS ispk, 
+                                                        COALESCE(description, '') AS description,
+                                                        ordinal_position
                                                     FROM information_schema.columns 
-                                                        LEFT JOIN pg_catalog.pg_description on (objsubid = ordinal_position) 
-                                                    WHERE table_name = '$table' AND table_catalog = '$database'  ORDER BY ordinal_position");
+                                                         LEFT JOIN pg_class ON (relname = table_name)
+                                                         LEFT JOIN pg_catalog.pg_description ON (objsubid = ordinal_position AND objoid = oid)
+                                                         LEFT JOIN pg_attribute ON (pg_attribute.attrelid = pg_class.oid AND pg_attribute.attname = information_schema.columns.column_name)
+                                                         LEFT JOIN pg_index ON (pg_index.indrelid = pg_class.oid)
+                                                    WHERE table_catalog = '$database' AND table_name = '$table' 
+                                                    ORDER BY ordinal_position");
             } elseif ($driver === 'sqlsrv') {
                 // SQL Server не поддерживает комментарии к таблицам
-                $tableColumns = $con->select("SELECT 
-                                                        column_name AS name, 
-                                                        data_type   AS type, 
-                                                        false       AS ispk,
-                                                        ''          AS description
-                                                    FROM information_schema.columns 
-                                                    WHERE TABLE_NAME = '$table'");
-            } elseif ($driver === 'sqlite') {
-                // SQL Server не поддерживает комментарии к таблицам
-                $tableColumns = $con->select("SELECT
-                                                        name AS name,
-                                                        type AS type,
-                                                        CASE WHEN pk = 1 THEN true ELSE false END AS ispk,
-                                                        '' AS description 
-                                                    FROM pragma_table_info('$table')");
+                $tableColumns = $con->select("SELECT DISTINCT
+                                                        C.COLUMN_NAME   AS name, 
+                                                        C.DATA_TYPE     AS type, 
+                                                        CASE 
+                                                            WHEN PK.COLUMN_NAME IS NOT NULL 
+                                                            THEN 1 
+                                                            ELSE 0 
+                                                        END             AS ispk,
+                                                        ISNULL((SELECT value
+                                                                FROM fn_listextendedproperty('MS_DESCRIPTION', 'schema', 'dbo', 'table', C.TABLE_NAME, 'column', C.COLUMN_NAME)), '') AS description,
+                                                        ORDINAL_POSITION
+                                                    FROM INFORMATION_SCHEMA.COLUMNS  AS C
+                                                        LEFT JOIN (
+                                                            SELECT 
+                                                                i.name AS index_name, 
+                                                                ic.index_column_id AS column_id, 
+                                                                col.name AS column_name
+                                                            FROM sys.indexes AS i
+                                                                     INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+                                                                     INNER JOIN sys.columns AS col ON ic.object_id = col.object_id AND col.column_id = ic.column_id
+                                                            WHERE i.is_primary_key = 1
+                                                        ) AS PK ON C.COLUMN_NAME = PK.column_name
+                                                    WHERE TABLE_CATALOG = '$database' AND TABLE_NAME = '$table'
+                                                    ORDER BY ORDINAL_POSITION");
             }
 
             $properties .= " * {$table} {$comments}" . PHP_EOL;
 
             foreach ($tableColumns as $column) {
-                if ($column?->ispk == 1 || $column?->ispk === true) {
+                if ($column?->ispk == 1) {
                     $pk = $column->name;
                     $column->description .= "(primary)";
                 }
