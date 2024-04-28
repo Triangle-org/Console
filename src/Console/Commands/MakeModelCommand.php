@@ -286,14 +286,33 @@ EOF;
      */
     protected function getType(string $type): string
     {
-        if (str_contains($type, 'int')) {
+        $type = strtolower($type);
+
+        $integerTypes = ['int', 'bit', 'serial'];
+        $floatTypes = ['float', 'double', 'real', 'numeric', 'decimal'];
+        $stringTypes = ['char', 'text', 'date', 'time', 'guid', 'enum', 'cidr', 'inet', 'macaddr', 'tsvector', 'uuid', 'xml', 'json'];
+        $binaryTypes = ['blob', 'binary', 'bytea'];
+
+        if (in_array($type, $integerTypes)) {
             return 'integer';
         }
-        return match ($type) {
-            'varchar', 'string', 'text', 'date', 'time', 'guid', 'datetimetz', 'datetime', 'decimal', 'enum' => 'string',
-            'boolean', 'bool' => 'integer',
-            'float' => 'float',
-            default => 'mixed',
-        };
+
+        if (in_array($type, $floatTypes)) {
+            return 'float';
+        }
+
+        if ($type === 'bool') {
+            return 'boolean';
+        }
+
+        if (in_array($type, $stringTypes)) {
+            return 'string';
+        }
+
+        if (in_array($type, $binaryTypes)) {
+            return 'binary';
+        }
+
+        return 'mixed';
     }
 }
