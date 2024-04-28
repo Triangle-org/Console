@@ -118,11 +118,13 @@ class MakeModelCommand extends Command
         $properties = '';
         $connection = $connection ?: 'mysql';
         try {
+            $driver = config("database.connections.$connection.driver");
             $prefix = config("database.connections.$connection.prefix") ?? '';
             $database = config("database.connections.$connection.database");
             $inflector = InflectorFactory::create()->build();
             $table_plura = $inflector->pluralize($inflector->tableize($class));
             $con = Manager::connection($connection);
+
             if ($con->getSchemaBuilder()->hasTable("{$prefix}{$table_plura}")) {
                 $table_val = "'$table'";
                 $table = "{$prefix}{$table_plura}";
@@ -130,25 +132,63 @@ class MakeModelCommand extends Command
                 $table_val = "'$table'";
                 $table = "{$prefix}{$table}";
             }
-            if ($connection === 'mysql') {
-                $tableComment = $con->select('SELECT table_comment FROM information_schema.TABLES WHERE table_schema = ? AND table_name = ?', [$database, $table]);
-                $comments = $tableComment[0]->table_comment ?? '';
-            } elseif ($connection === 'pgsql') {
-                $tableComment = $con->select('SELECT obj_description((SELECT oid FROM pg_class WHERE relname = ?), \'pg_class\') as table_comment', [$table]);
-                $comments = $tableComment[0]->table_comment ?? '';
-            } else {
-                // SQLite and SQL Server do not support comments on tables or columns.
-                $comments = '';
+
+            $tableColumns = [];
+            $comments = '';
+            if ($driver === 'mysql') {
+                $tableComment = $con->select('SELECT table_comment AS comment FROM information_schema.`TABLES` WHERE table_schema = ? AND table_name = ?', [$database, $table]);
+                $comments = $tableComment[0]->comment ?? '';
+                $tableColumns = $con->select("SELECT 
+                                                        COLUMN_NAME     AS name, 
+                                                        DATA_TYPE       AS type, 
+                                                        CASE 
+                                                            WHEN COLUMN_KEY  = 'PRI' 
+                                                            THEN true 
+                                                            ELSE false 
+                                                        END             AS ispk, 
+                                                        COLUMN_COMMENT  AS description
+                                                    FROM information_schema.columns 
+                                                    WHERE table_name = '$table' AND table_schema = '$database' ORDER BY ordinal_position");
+            } elseif ($driver === 'pgsql') {
+                $tableComment = $con->select('SELECT obj_description(oid) AS comment FROM pg_class WHERE relname = ?', [$table]);
+                $comments = $tableComment[0]->comment ?? '';
+                $tableColumns = $con->select("SELECT 
+                                                        column_name                 AS name, 
+                                                        data_type                   AS type, 
+                                                        false                       AS ispk, 
+                                                        COALESCE(description, '')   AS description
+                                                    FROM information_schema.columns 
+                                                        LEFT JOIN pg_catalog.pg_description on (objsubid = ordinal_position) 
+                                                    WHERE table_name = '$table' AND table_catalog = '$database'  ORDER BY ordinal_position");
+            } elseif ($driver === 'sqlsrv') {
+                // SQL Server не поддерживает комментарии к таблицам
+                $tableColumns = $con->select("SELECT 
+                                                        column_name AS name, 
+                                                        data_type   AS type, 
+                                                        false       AS ispk,
+                                                        ''          AS description
+                                                    FROM information_schema.columns 
+                                                    WHERE TABLE_NAME = '$table'");
+            } elseif ($driver === 'sqlite') {
+                // SQL Server не поддерживает комментарии к таблицам
+                $tableColumns = $con->select("SELECT
+                                                        name AS name,
+                                                        type AS type,
+                                                        CASE WHEN pk = 1 THEN true ELSE false END AS ispk,
+                                                        '' AS description 
+                                                    FROM pragma_table_info('$table')");
             }
+
             $properties .= " * {$table} {$comments}" . PHP_EOL;
-            $columns = $con->getSchemaBuilder()->getColumnListing($table);
-            foreach ($columns as $column) {
-                $type = $this->getType($con->getSchemaBuilder()->getColumnType($table, $column));
-                $pk = '';
-                if ($type === 'integer' && $column === 'id') {
-                    $pk = '(первичный ключ)';
+
+            foreach ($tableColumns as $column) {
+                if ($column?->ispk == 1 || $column?->ispk === true) {
+                    $pk = $column->name;
+                    $column->description .= "(primary)";
                 }
-                $properties .= " * @property $type \${$column}\n";
+
+                $type = $this->getType($column->type);
+                $properties .= " * @property $type \${$column->name} {$column->description}\n";
             }
         } catch (Throwable $e) {
             echo $e->getMessage() . PHP_EOL;
