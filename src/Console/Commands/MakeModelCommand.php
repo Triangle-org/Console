@@ -222,7 +222,7 @@ class MakeModelCommand extends Command
             foreach ($tableColumns as $column) {
                 if ($column?->ispk == 1) {
                     $pk = $column->name;
-                    $column->description .= "(primary)";
+                    $column->description .= " (primary)";
                 }
 
                 $type = $this->getType($column->type);
@@ -316,10 +316,6 @@ EOF;
             || str_contains($type, 'xml')
             || str_contains($type, 'json')) {
             return 'string';
-        }
-
-        if (str_contains($type, 'blob') || str_contains($type, 'binary') || str_contains($type, 'bytea')) {
-            return 'binary';
         }
 
         return 'mixed';
