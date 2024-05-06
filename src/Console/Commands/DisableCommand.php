@@ -6,8 +6,8 @@ declare(strict_types=1);
  * @package     Triangle Console Plugin
  * @link        https://github.com/Triangle-org/Console
  *
- * @author      Ivan Zorin <creator@localzet.com>
- * @copyright   Copyright (c) 2018-2024 Localzet Group
+ * @author      Ivan Zorin <ivan@zorin.space>
+ * @copyright   Copyright (c) 2022-2024 Triangle Team
  * @license     GNU Affero General Public License, version 3
  *
  *              This program is free software: you can redistribute it and/or modify
@@ -22,11 +22,13 @@ declare(strict_types=1);
  *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *              For any questions, please contact <support@localzet.com>
  */
 
 namespace Triangle\Console\Commands;
 
-use Symfony\Component\Console\Command\Command;
+use localzet\Console\Commands\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -35,8 +37,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class DisableCommand extends Command
 {
-    protected static $defaultName = 'disable';
-    protected static $defaultDescription = 'Удалить проект из автозагрузки';
+    protected static string $defaultName = 'disable';
+    protected static string $defaultDescription = 'Удалить проект из автозагрузки';
 
     /**
      * @param InputInterface $input

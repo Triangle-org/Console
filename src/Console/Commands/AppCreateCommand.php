@@ -1,8 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * @package     Triangle Console Plugin
+ * @link        https://github.com/Triangle-org/Console
+ *
+ * @author      Ivan Zorin <ivan@zorin.space>
+ * @copyright   Copyright (c) 2022-2024 Triangle Team
+ * @license     GNU Affero General Public License, version 3
+ *
+ *              This program is free software: you can redistribute it and/or modify
+ *              it under the terms of the GNU Affero General Public License as
+ *              published by the Free Software Foundation, either version 3 of the
+ *              License, or (at your option) any later version.
+ *
+ *              This program is distributed in the hope that it will be useful,
+ *              but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *              GNU Affero General Public License for more details.
+ *
+ *              You should have received a copy of the GNU Affero General Public License
+ *              along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *              For any questions, please contact <support@localzet.com>
+ */
+
 namespace Triangle\Console\Commands;
 
-use Symfony\Component\Console\Command\Command;
+use localzet\Console\Commands\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,8 +39,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class AppCreateCommand extends Command
 {
-    protected static $defaultName = 'app:create';
-    protected static $defaultDescription = 'Создать приложение';
+    protected static string $defaultName = 'app:create';
+    protected static string $defaultDescription = 'Создать приложение';
 
     /**
      * @return void
@@ -143,9 +169,8 @@ use support\\Request;
 
 return [
     'debug' => true,
-    'controller_suffix' => 'Controller',
+    'controller_suffix' => '',
     'controller_reuse' => false,
-    'version' => '1.0.0'
 ];
 
 EOF;

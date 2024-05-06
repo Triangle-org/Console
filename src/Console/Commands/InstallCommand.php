@@ -6,8 +6,8 @@ declare(strict_types=1);
  * @package     Triangle Console Plugin
  * @link        https://github.com/Triangle-org/Console
  *
- * @author      Ivan Zorin <creator@localzet.com>
- * @copyright   Copyright (c) 2018-2024 Localzet Group
+ * @author      Ivan Zorin <ivan@zorin.space>
+ * @copyright   Copyright (c) 2022-2024 Triangle Team
  * @license     GNU Affero General Public License, version 3
  *
  *              This program is free software: you can redistribute it and/or modify
@@ -22,11 +22,13 @@ declare(strict_types=1);
  *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *              For any questions, please contact <support@localzet.com>
  */
 
 namespace Triangle\Console\Commands;
 
-use Symfony\Component\Console\Command\Command;
+use localzet\Console\Commands\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -35,8 +37,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class InstallCommand extends Command
 {
-    protected static $defaultName = 'install';
-    protected static $defaultDescription = 'Запуск установщика Triangle';
+    protected static string $defaultName = 'install';
+    protected static string $defaultDescription = 'Запуск установщика Triangle';
 
     /**
      * @param InputInterface $input
@@ -45,13 +47,15 @@ class InstallCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output->writeln("Выполняю установку Triangle");
         $install_function = "\\Triangle\\Engine\\Install::install";
         if (is_callable($install_function)) {
+            $output->writeln("Установка Triangle...");
             $install_function();
             $output->writeln("Готово!");
             return self::SUCCESS;
         }
+
+        $output->writeln("Triangle не найден");
         return self::FAILURE;
     }
 }
