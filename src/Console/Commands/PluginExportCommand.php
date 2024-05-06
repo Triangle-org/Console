@@ -29,10 +29,10 @@ declare(strict_types=1);
 namespace Triangle\Console\Commands;
 
 use localzet\Console\Commands\Command;
+use localzet\Console\Util;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use localzet\Console\Util;
 
 /**
  * @author walkor <walkor@workerman.net>

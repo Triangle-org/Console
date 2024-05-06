@@ -97,7 +97,7 @@ class Install
     public static function uninstallByRelation(): void
     {
         foreach (static::$pathRelation as $source => $target) {
-        $targetFile = base_path($target);
+            $targetFile = base_path($target);
 
             remove_dir($targetFile);
             echo "Удалён $target\r\n";

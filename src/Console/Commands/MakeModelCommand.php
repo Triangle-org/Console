@@ -30,12 +30,12 @@ namespace Triangle\Console\Commands;
 
 use Doctrine\Inflector\InflectorFactory;
 use localzet\Console\Commands\Command;
+use localzet\Console\Util;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
-use localzet\Console\Util;
 use Triangle\Engine\Database\Manager;
 
 /**

@@ -28,9 +28,9 @@ declare(strict_types=1);
 
 namespace Triangle\Console\Commands;
 
-use Symfony\Component\Console\{Input\InputArgument, Input\InputInterface, Output\OutputInterface};
 use localzet\Console\Commands\Command;
 use localzet\Console\Util;
+use Symfony\Component\Console\{Input\InputArgument, Input\InputInterface, Output\OutputInterface};
 
 /**
  * @author walkor <walkor@workerman.net>
