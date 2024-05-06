@@ -55,7 +55,7 @@ class BuildBinCommand extends BuildPharCommand
     protected function configure(): void
     {
         parent::configure();
-        $this->addArgument('version', InputArgument::OPTIONAL, 'Версия PHP');
+//        $this->addArgument('version', InputArgument::OPTIONAL, 'Версия PHP');
 
         $this->php_version = (float)$this->config('build.php_version', PHP_VERSION);
         $this->php_ini = $this->config('build.php_ini', '');
