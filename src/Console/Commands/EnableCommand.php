@@ -48,38 +48,40 @@ class EnableCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!is_dir("/etc/supervisor/conf.d/")) {
-            $output->writeln("<error>Для автозагрузки требуется Supervisor</>");
+            $output->writeln("<error>Для автозагрузки требуется Supervisor. Выполните `apt install supervisor`</>");
             return self::FAILURE;
         }
 
-        if (empty(config('app.domain'))) {
-            $output->writeln("<error>Не задан app.domain</>");
-            return self::FAILURE;
-        }
-
-        $domain = config('app.domain');
-        $directory = base_path();
-        $file = $directory . "/resources/supervisor.conf";
+        $name = config('app.domain', generateId());
+        $file = runtime_path("/conf.d/supervisor/$name.conf");
 
         if (!is_file($file)) {
+            $directory = base_path();
+            $stdout_logfile = config('server.stdout_file', runtime_path('logs/stdout.log'));
+            $user = config('server.user', 'root');
+            empty($user) && $user = 'root';
+
             $conf = <<<EOF
-            [program:$domain]
-            user = root
+            [program:$name]
             command = php master restart
             directory = $directory
-            numprocs = 1
-            autorestart = true
             autostart = true
+            autorestart = true
+            stopsignal=QUIT
+            user = $user
+            redirect_stderr=true
+            stdout_logfile=$stdout_logfile
             EOF;
 
-            $fstream = fopen($file, 'w');
-            fwrite($fstream, $conf);
-            fclose($fstream);
+            file_put_contents($file, $conf);
 
             $output->writeln("<comment>Конфигурация создана</>");
         }
 
-        exec("ln -sf $file /etc/supervisor/conf.d/$domain.conf");
+        if (!symlink($file, "/etc/supervisor/conf.d/$name.conf")) {
+            $output->writeln("<error>Не удалось создать символическую ссылку</>");
+            return self::FAILURE;
+        }
         $output->writeln("<info>Ссылка создана</>");
 
         exec("service supervisor restart");

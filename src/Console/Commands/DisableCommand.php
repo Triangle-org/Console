@@ -47,20 +47,19 @@ class DisableCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!is_dir("/etc/supervisor/conf.d")) {
-            $output->writeln("<error>Для автозагрузки требуется Supervisor</>");
+        if (!is_dir("/etc/supervisor/conf.d/")) {
+            $output->writeln("<error>Для автозагрузки требуется Supervisor. Выполните `apt install supervisor`</>");
             return self::FAILURE;
         }
 
-        $domain = config('app.domain');
-        if (empty($domain)) {
-            $output->writeln("<error>Не задан app.domain</>");
-            return self::FAILURE;
-        }
-        $file = "/etc/supervisor/conf.d/$domain.conf";
+        $name = config('app.domain', generateId());
+        $file = "/etc/supervisor/conf.d/$name.conf";
 
         if (is_file($file)) {
-            @unlink($file);
+            if (!unlink($file)) {
+                $output->writeln("<error>Не удалось удалить файл: $file</>");
+                return self::FAILURE;
+            }
             $output->writeln("<info>Ссылка удалена</>");
 
             exec("service supervisor restart");
