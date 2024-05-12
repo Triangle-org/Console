@@ -55,6 +55,10 @@ class EnableCommand extends Command
         $name = config('app.domain', generateId());
         $file = runtime_path("/conf.d/supervisor/$name.conf");
 
+        if (!is_dir(runtime_path("/conf.d/supervisor/"))) {
+            mkdir(runtime_path("/conf.d/supervisor/"), 777, true);
+        }
+
         if (!is_file($file)) {
             $directory = base_path();
             $stdout_logfile = config('server.stdout_file', runtime_path('logs/stdout.log'));
