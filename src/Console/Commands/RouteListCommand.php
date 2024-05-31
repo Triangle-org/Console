@@ -51,14 +51,19 @@ class RouteListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $headers = ['uri', 'method', 'callback', 'middleware', 'name'];
+        $headers = ['PATH', 'METHOD', 'CALLBACK', 'MIDDLEWARE', 'NAME'];
+        $allMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
         $rows = [];
         foreach (Router::getRoutes() as $route) {
-            foreach ($route->getMethods() as $method) {
-                $cb = $route->getCallback();
-                $cb = $cb instanceof Closure ? 'Closure' : (is_array($cb) ? json_encode($cb) : var_export($cb, true));
-                $rows[] = [$route->getPath(), $method, $cb, json_encode($route->getMiddleware() ?: null), $route->getName()];
+            $methods = $route->getMethods();
+
+            if ($methods == $allMethods) {
+                $methods = ['ANY'];
             }
+
+            $cb = $route->getCallback();
+            $cb = $cb instanceof Closure ? 'Closure' : (is_array($cb) ? $cb[0] . '::' . $cb[1] : var_export($cb, true));
+            $rows[] = [$route->getPath(), implode(', ', $methods), $cb, json_encode($route->getMiddleware() ?: null), $route->getName()];
         }
 
         $table = new Table($output);

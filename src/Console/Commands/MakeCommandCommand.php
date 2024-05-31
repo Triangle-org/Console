@@ -104,7 +104,7 @@ class MakeCommandCommand extends Command
 
 namespace $namespace;
 
-use Symfony\Component\Console\Command\Command;
+use localzet\Console\Commands\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
@@ -112,8 +112,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class $name extends Command
 {
-    protected static \$defaultName = '$command';
-    protected static \$defaultDescription = '$desc';
+    protected static string \$defaultName = '$command';
+    protected static string \$defaultDescription = '$desc';
 
     /**
      * @return void
@@ -128,10 +128,10 @@ class $name extends Command
      * @param OutputInterface \$output
      * @return int
      */
-    protected function execute(InputInterface \$input, OutputInterface \$output)
+    protected function execute(InputInterface \$input, OutputInterface \$output): int
     {
         \$name = \$input->getArgument('name');
-        \$output->writeln('Выполнена команда $command');
+        \$output->writeln('Выполнена команда $command, name:' . \$name);
         return self::SUCCESS;
     }
 }

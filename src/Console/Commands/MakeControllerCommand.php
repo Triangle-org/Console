@@ -117,10 +117,17 @@ class MakeControllerCommand extends Command
 namespace $namespace;
 
 use support\Request;
+use support\Response;
+use Throwable;
 
 class $name
 {
-    public function index(Request \$request)
+    /**
+     * @param Request \$request
+     * @return Response
+     * @throws Throwable
+     */
+    public function index(Request \$request): Response
     {
         return response(__CLASS__);
     }

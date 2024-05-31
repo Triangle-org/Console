@@ -108,15 +108,20 @@ class MakeMiddlewareCommand extends Command
 <?php
 namespace $namespace;
 
-use Triangle\Engine\MiddlewareInterface;
-use Triangle\Engine\Http\Response;
 use Triangle\Engine\Http\Request;
+use Triangle\Engine\Http\Response;
+use Triangle\Engine\Middleware\MiddlewareInterface;
 
 class $name implements MiddlewareInterface
 {
-    public function process(Request \$request, callable \$next) : Response
+    /**
+     * @param Request \$request
+     * @param callable \$handler
+     * @return Response
+     */
+    public function process(Request \$request, callable \$handler) : Response
     {
-        return \$next(\$request);
+        return \$handler(\$request);
     }
     
 }
