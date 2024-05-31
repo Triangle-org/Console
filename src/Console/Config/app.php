@@ -24,7 +24,7 @@ return [
 
         // Для бинарной сборки:
         'php_version' => 8.2,
-        'custom_ini' => '
+        'php_ini' => '
         memory_limit = 256M
         ',
 

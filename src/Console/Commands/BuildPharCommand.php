@@ -33,7 +33,7 @@ use Composer\InstalledVersions;
 /**
  * @author Ivan Zorin <ivan@zorin.space>
  */
-class BuildPharCommand extends \localzet\Console\Commands\BuildBinCommand
+class BuildPharCommand extends \localzet\Console\Commands\BuildPharCommand
 {
     /**
      * @return array
