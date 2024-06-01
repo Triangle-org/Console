@@ -81,17 +81,20 @@ class AppCreateCommand extends Command
      */
     protected function createAll($name): void
     {
-        $base_path = base_path();
-        $this->mkdir("$base_path/plugin/$name/app/controller");
-        $this->mkdir("$base_path/plugin/$name/app/model");
-        $this->mkdir("$base_path/plugin/$name/app/middleware");
-        $this->mkdir("$base_path/plugin/$name/app/view/index");
-        $this->mkdir("$base_path/plugin/$name/config");
-        $this->mkdir("$base_path/plugin/$name/public");
-        $this->mkdir("$base_path/plugin/$name/api");
-        $this->createFunctionsFile("$base_path/plugin/$name/app/functions.php");
-        $this->createControllerFile("$base_path/plugin/$name/app/controller/IndexController.php", $name);
-        $this->createConfigFiles("$base_path/plugin/$name/config", $name);
+        $plugin_path = base_path() . "/plugin/$name";
+
+        $this->mkdir("$plugin_path/app/controller");
+        $this->mkdir("$plugin_path/app/middleware");
+        $this->mkdir("$plugin_path/app/model");
+        $this->mkdir("$plugin_path/app/view");
+
+        $this->mkdir("$plugin_path/config");
+        $this->mkdir("$plugin_path/public");
+        $this->mkdir("$plugin_path/api");
+
+        $this->createFunctionsFile("$plugin_path/app/functions.php");
+        $this->createControllerFile("$plugin_path/app/controller/IndexController.php", $name);
+        $this->createConfigFiles("$plugin_path/config", $name);
     }
 
     /**
@@ -169,7 +172,7 @@ use support\\Request;
 
 return [
     'debug' => true,
-    'controller_suffix' => '',
+    'controller_suffix' => 'Controller',
     'controller_reuse' => false,
 ];
 
