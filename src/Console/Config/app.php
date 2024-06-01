@@ -12,7 +12,7 @@ return [
 
         'exclude_pattern' => '#^(?!.*(composer.json|/.github/|/.idea/|/.git/|/.setting/|/runtime/|/vendor-bin/|/build/))(.*)$#',
         'exclude_files' => [
-            '.env', 'LICENSE', 'composer.json', 'composer.lock', 'triangle.phar', 'triangle.bin'
+            '.env', 'LICENSE', 'composer.json', 'composer.lock', 'triangle.phar', 'triangle'
         ],
 
         'phar_alias' => 'triangle',
@@ -23,11 +23,9 @@ return [
         'private_key_file' => '', // Для Phar::OPENSSL
 
         // Для бинарной сборки:
-        'php_version' => 8.2,
-        'php_ini' => '
-        memory_limit = 256M
-        ',
+        'php_version' => 8.3,
+        'php_ini' => 'memory_limit = 256M',
 
-        'bin_filename' => 'triangle.bin',
+        'bin_filename' => 'triangle',
     ],
 ];
