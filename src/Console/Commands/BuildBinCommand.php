@@ -30,6 +30,7 @@ namespace Triangle\Console\Commands;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
 use ZipArchive;
 
 /**
@@ -55,8 +56,7 @@ class BuildBinCommand extends BuildPharCommand
     protected function configure(): void
     {
         parent::configure();
-        // В localzet\Console уже есть аргумент 'version' для 'build:bin'
-        // $this->addArgument('version', InputArgument::OPTIONAL, 'Версия PHP');
+         $this->addArgument('version', InputArgument::OPTIONAL, 'Версия PHP');
 
         $this->php_version = (float)$this->config('build.php_version', PHP_VERSION);
         $this->php_ini = $this->config('build.php_ini', 'memory_limit = 256M');
