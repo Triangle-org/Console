@@ -52,7 +52,7 @@ class DisableCommand extends Command
             return self::FAILURE;
         }
 
-        $name = config('app.domain', generateId());
+        $name = file_get_contents(runtime_path("/conf.d/supervisor/triangle.run"));
         $file = "/etc/supervisor/conf.d/$name.conf";
 
         if (is_file($file)) {

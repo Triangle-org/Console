@@ -64,10 +64,18 @@ class EnableCommand extends Command
             $stdout_logfile = config('server.stdout_file', runtime_path('logs/stdout.log'));
             $user = config('server.user', 'root');
             empty($user) && $user = 'root';
+            $executor = match (true) {
+                is_file("$directory/php") => "$directory/php",
+                is_file("$directory/php-8.0") => "$directory/php-8.0",
+                is_file("$directory/php-8.1") => "$directory/php-8.1",
+                is_file("$directory/php-8.2") => "$directory/php-8.2",
+                is_file("$directory/php-8.3") => "$directory/php-8.3",
+                default => "php",
+            };
 
             $conf = <<<EOF
             [program:$name]
-            command = php master restart
+            command = $executor master restart
             directory = $directory
             autostart = true
             autorestart = true
@@ -77,10 +85,15 @@ class EnableCommand extends Command
             stdout_logfile=$stdout_logfile
             EOF;
 
-            file_put_contents($file, $conf);
+            if (file_put_contents($file, $conf) === false) {
+                $output->writeln("Ошибка при записи в файл $file");
+                return self::FAILURE;
+            }
 
             $output->writeln("<comment>Конфигурация создана</>");
         }
+
+        file_put_contents(runtime_path("/conf.d/supervisor/triangle.run"), $name);
 
         if (!symlink($file, "/etc/supervisor/conf.d/$name.conf")) {
             $output->writeln("<error>Не удалось создать символическую ссылку</>");

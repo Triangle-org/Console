@@ -73,7 +73,11 @@ class PluginDisableCommand extends Command
         }
         $config_content = file_get_contents($config_file);
         $config_content = preg_replace('/(\'enable\' *?=> *?)(true)/', '$1false', $config_content);
-        file_put_contents($config_file, $config_content);
+        if (file_put_contents($config_file, $config_content) === false) {
+            $output->writeln("Ошибка при записи в файл $config_file");
+            return self::FAILURE;
+        }
+
         return self::SUCCESS;
     }
 }

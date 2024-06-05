@@ -196,12 +196,20 @@ class BuildBinCommand extends BuildPharCommand
             fclose($f);
             unset($f);
 
-            file_put_contents($this->bin_file, file_get_contents($this->php_ini_file), FILE_APPEND);
+            if (file_put_contents($this->bin_file, file_get_contents($this->php_ini_file), FILE_APPEND) === false) {
+                $output->writeln("Ошибка при записи в файл $this->bin_file");
+                return self::FAILURE;
+            }
+
             unlink($this->php_ini_file);
         }
 
         // PHAR-файл
-        file_put_contents($this->bin_file, file_get_contents($this->phar_file), FILE_APPEND);
+        if (file_put_contents($this->bin_file, file_get_contents($this->phar_file), FILE_APPEND) === false) {
+            $output->writeln("Ошибка при записи в файл $this->bin_file");
+            return self::FAILURE;
+        }
+
         unlink($this->phar_file);
 
         // Добавим права на выполнение
