@@ -52,7 +52,8 @@ class EnableCommand extends Command
             return self::FAILURE;
         }
 
-        $name = config('app.domain', generateId());
+        $name = file_get_contents(runtime_path("/conf.d/supervisor/triangle.run"));
+        $name = $name ?: config('app.domain', generateId());
         $file = runtime_path("/conf.d/supervisor/$name.conf");
 
         if (!is_dir(runtime_path("/conf.d/supervisor/"))) {

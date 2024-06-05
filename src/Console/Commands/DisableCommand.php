@@ -53,6 +53,7 @@ class DisableCommand extends Command
         }
 
         $name = file_get_contents(runtime_path("/conf.d/supervisor/triangle.run"));
+        $name = $name ?: config('app.domain');
         $file = "/etc/supervisor/conf.d/$name.conf";
 
         if (is_file($file)) {
