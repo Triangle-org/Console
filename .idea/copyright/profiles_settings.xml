@@ -1,0 +1,12 @@
+<component name="CopyrightManager">
+  <settings default="Triangle Console">
+    <module2copyright>
+      <element module="Project Files" copyright="Triangle Console" />
+    </module2copyright>
+    <LanguageOptions name="__TEMPLATE__">
+      <option name="addBlankBefore" value="true" />
+      <option name="separateBefore" value="true" />
+      <option name="lenBefore" value="1" />
+    </LanguageOptions>
+  </settings>
+</component>

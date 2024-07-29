@@ -22,8 +22,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Triangle\\": "src",
-      "Triangle\\Console\\": "src/Console"
+      "Triangle\\": "",
+      "Triangle\\Console\\": "src"
     }
   },
   "require": {

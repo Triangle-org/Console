@@ -1,36 +1,34 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 /**
- * @package     Triangle Console Plugin
+ * @package     Triangle Console Component
  * @link        https://github.com/Triangle-org/Console
  *
- * @author      Ivan Zorin <ivan@zorin.space>
- * @copyright   Copyright (c) 2022-2024 Triangle Team
- * @license     GNU Affero General Public License, version 3
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2023-2024 Triangle Framework Team
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License v3.0
  *
  *              This program is free software: you can redistribute it and/or modify
- *              it under the terms of the GNU Affero General Public License as
- *              published by the Free Software Foundation, either version 3 of the
- *              License, or (at your option) any later version.
+ *              it under the terms of the GNU Affero General Public License as published
+ *              by the Free Software Foundation, either version 3 of the License, or
+ *              (at your option) any later version.
  *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
- *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
  *
  *              You should have received a copy of the GNU Affero General Public License
- *              along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- *              For any questions, please contact <support@localzet.com>
+ *              For any questions, please contact <triangle@localzet.com>
  */
 
 namespace Triangle\Console\Commands;
 
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
 use ZipArchive;
 
 /**
@@ -56,7 +54,7 @@ class BuildBinCommand extends BuildPharCommand
     protected function configure(): void
     {
         parent::configure();
-         $this->addArgument('version', InputArgument::OPTIONAL, 'Версия PHP');
+        $this->addArgument('version', InputArgument::OPTIONAL, 'Версия PHP');
 
         $this->php_version = (float)$this->config('build.php_version', PHP_VERSION);
         $this->php_ini = $this->config('build.php_ini', 'memory_limit = 256M');
@@ -78,7 +76,7 @@ class BuildBinCommand extends BuildPharCommand
         parent::execute($input, $output);
 
         $version = $input->getArgument('version') ?? $this->php_version;
-        $version = (float) max($version, 8.0);
+        $version = (float)max($version, 8.0);
 
         $supportZip = class_exists(ZipArchive::class);
         $microZipFileName = $supportZip ? "php-$version-micro.zip" : "php-$version-micro";
