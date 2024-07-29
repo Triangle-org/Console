@@ -35,70 +35,23 @@ class Install
     public const TRIANGLE_PLUGIN = true;
 
     /**
-     * @var array
-     */
-    protected static array $pathRelation = [
-        'Config' => 'config',
-    ];
-
-    /**
      * Установка плагина
      * @return void
      */
     public static function install(): void
     {
-        static::installByRelation();
-    }
-
-    /**
-     * Обновление плагина
-     * @return void
-     */
-    public static function update(): void
-    {
-        static::installByRelation();
-    }
-
-    /**
-     * Удаление плагина
-     * @return void
-     */
-    public static function uninstall(): void
-    {
-        self::uninstallByRelation();
-    }
-
-    /**
-     * @return void
-     */
-    public static function installByRelation(): void
-    {
-        foreach (static::$pathRelation as $source => $target) {
-            $sourceFile = __DIR__ . "/$source";
-            $targetFile = base_path($target);
-
-            if ($pos = strrpos($target, '/')) {
-                $parentDir = base_path(substr($target, 0, $pos));
-                if (!is_dir($parentDir)) {
-                    create_dir($parentDir);
+        $source = __DIR__ . "/Config";
+        if (self::TRIANGLE_PLUGIN
+            && is_dir($source)
+            && !empty($sourceFiles = glob($source . "/*.php"))
+        ) {
+            foreach ($sourceFiles as $file) {
+                $target = config_path(str_replace($source, "", $file));
+                if (!file_exists($target)) {
+                    copy_dir($file, $target);
+                    echo "Создан $target\r\n";
                 }
             }
-
-            copy_dir($sourceFile, $targetFile);
-            echo "Создан $targetFile\r\n";
-        }
-    }
-
-    /**
-     * @return void
-     */
-    public static function uninstallByRelation(): void
-    {
-        foreach (static::$pathRelation as $source => $target) {
-            $targetFile = base_path($target);
-
-            remove_dir($targetFile);
-            echo "Удалён $target\r\n";
         }
     }
 }
