@@ -65,6 +65,6 @@ class Console extends \localzet\Console
     public function installInternalCommands(): void
     {
         parent::installInternalCommands();
-        $this->installCommands(rtrim(InstalledVersions::getInstallPath('triangle/console'), '/') . '/src/Console/Commands', 'Triangle\\Console\\Commands');
+        $this->installCommands(rtrim(InstalledVersions::getInstallPath('triangle/console'), '/') . '/src/Commands', 'Triangle\\Console\\Commands');
     }
 }
