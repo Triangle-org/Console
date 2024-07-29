@@ -27,6 +27,7 @@
 namespace Triangle;
 
 use Composer\InstalledVersions;
+use Phar;
 use RuntimeException;
 
 /**
@@ -37,10 +38,24 @@ class Console extends \localzet\Console
     public function __construct(array $config = [], bool $installInternalCommands = true)
     {
         if (!InstalledVersions::isInstalled('triangle/engine')) {
-            throw new RuntimeException('Triangle\\Console не может работать без Triangle\\Engine. Для запуска вне среды Triangle рекомендуется использовать `localzet/console`.');
+            throw new RuntimeException('Triangle\\Console не может работать без Triangle\\Engine. Для запуска вне среды Triangle используйте `localzet/console`.');
         }
 
-        $config = array_merge(config('plugin.triangle.console.app', []), $config);
+        $base_path = defined('BASE_PATH') ? BASE_PATH : (InstalledVersions::getRootPackage()['install_path'] ?? null);
+        $config += config('console', config('plugin.triangle.console.app', ['build' => [
+            'input_dir' => $base_path,
+            'output_dir' => $base_path . DIRECTORY_SEPARATOR . 'build',
+            'exclude_pattern' => '#^(?!.*(composer.json|/.github/|/.idea/|/.git/|/.setting/|/runtime/|/vendor-bin/|/build/))(.*)$#',
+            'exclude_files' => ['.env', 'LICENSE', 'composer.json', 'composer.lock', 'triangle.phar', 'triangle'],
+            'phar_alias' => 'triangle',
+            'phar_filename' => 'triangle.phar',
+            'phar_stub' => 'master',
+            'signature_algorithm' => Phar::SHA256,
+            'private_key_file' => '',
+            'php_version' => 8.3,
+            'php_ini' => 'memory_limit = 256M',
+            'bin_filename' => 'triangle',
+        ]]));
         $config['name'] = 'Triangle Console';
         $config['version'] = InstalledVersions::getPrettyVersion('triangle/console');
 

@@ -38,7 +38,7 @@ class Install
      * @var array
      */
     protected static array $pathRelation = [
-        'Config' => 'config/plugin/triangle/console',
+        'Config' => 'config',
     ];
 
     /**
@@ -80,7 +80,7 @@ class Install
             if ($pos = strrpos($target, '/')) {
                 $parentDir = base_path(substr($target, 0, $pos));
                 if (!is_dir($parentDir)) {
-                    mkdir($parentDir, recursive: true);
+                    create_dir($parentDir);
                 }
             }
 
