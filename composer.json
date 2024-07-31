@@ -27,7 +27,8 @@
     }
   },
   "require": {
-    "localzet/console": ">=1.0"
+    "localzet/console": ">=1.0",
+    "triangle/engine": ">=6.3"
   },
   "suggest": {
     "ext-zip": "For build bin",
