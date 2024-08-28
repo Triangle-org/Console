@@ -27,8 +27,14 @@
 namespace Triangle;
 
 use Composer\InstalledVersions;
+use ErrorException;
+use localzet\Console\Util;
 use Phar;
+use ReflectionClass;
+use ReflectionException;
 use RuntimeException;
+use Triangle\Engine\Autoload;
+use Triangle\Engine\Plugin;
 
 /**
  *
@@ -42,7 +48,7 @@ class Console extends \localzet\Console
         }
 
         $base_path = defined('BASE_PATH') ? BASE_PATH : (InstalledVersions::getRootPackage()['install_path'] ?? null);
-        $config += config('console', config('plugin.triangle.console.app', ['build' => [
+        $config += config('console', ['build' => [
             'input_dir' => $base_path,
             'output_dir' => $base_path . DIRECTORY_SEPARATOR . 'build',
             'exclude_pattern' => '#^(?!.*(composer.json|/.github/|/.idea/|/.git/|/.setting/|/runtime/|/vendor-bin/|/build/))(.*)$#',
@@ -55,11 +61,72 @@ class Console extends \localzet\Console
             'php_version' => 8.3,
             'php_ini' => 'memory_limit = 256M',
             'bin_filename' => 'triangle',
-        ]]));
+        ]]);
         $config['name'] = 'Triangle Console';
         $config['version'] = InstalledVersions::getPrettyVersion('triangle/console');
 
         parent::__construct($config, $installInternalCommands);
+    }
+
+    /**
+     * @return Console
+     * @throws ErrorException
+     * @throws ReflectionException
+     */
+    public function loadAll(): static
+    {
+        if (!in_array($argv[1] ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections'])) {
+            Autoload::loadAll();
+        } else {
+            Autoload::loadCore();
+        }
+
+        $config = config();
+        $command_path = Util::guessPath(app_path(), 'command', true);
+
+        // Грузим команды из /app/command/*.php
+        $this->loadFromConfig($config['command'] ?? []);
+        $command_path && $this->installCommands($command_path);
+
+        // Грузим команды из /plugin/{plugin}/app/command/*.php
+        Plugin::app_reduce(function ($plugin, $config) {
+            $this->loadFromConfig($config['command'] ?? []);
+
+            $plugin_path = config('app.plugin_alias', 'plugin');
+            $base_path = "$plugin_path/app/$plugin";
+            $command_str = Util::guessPath(base_path($base_path), 'command');
+
+            if ($command_str) {
+                $path = "$base_path/$command_str";
+                $this->installCommands(base_path($path), str_replace('/', "\\", $path));
+            }
+        });
+
+        // Грузим команды из /config/plugin/{vendor}/{plugin}/command.php
+        Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) {
+            $this->loadFromConfig($config['command'] ?? []);
+        });
+
+        return $this;
+    }
+
+    /**
+     * @param array $config
+     * @throws ReflectionException
+     */
+    protected function loadFromConfig(array $config): void
+    {
+        foreach ($config as $class_name) {
+            $reflection = new ReflectionClass($class_name);
+            if ($reflection->isAbstract()) continue;
+
+            $properties = $reflection->getStaticProperties();
+
+            $name = $properties['defaultName'] ?? null;
+            if (!$name) throw new RuntimeException("У команды $class_name нет defaultName");
+
+            $this->add(new $class_name(config('console', [])));
+        }
     }
 
     public function installInternalCommands(): void
