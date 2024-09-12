@@ -120,12 +120,18 @@ class AppCreateCommand extends Command
 
 namespace plugin\\$name\\app\\controller;
 
-use support\\Request;
+use support\Request;
+use Throwable;
+use Triangle\Http\Response;
 
 class IndexController
 {
-
-    public function index()
+    /**
+     * @param Request \$request
+     * @return Response
+     * @throws Throwable
+     */
+    public function index(Request \$request): Response
     {
         return response('Добро пожаловать в $name!');
     }
@@ -171,7 +177,7 @@ use support\\Request;
 
 return [
     'debug' => true,
-    'controller_suffix' => 'Controller',
+    'controller_suffix' => '',
     'controller_reuse' => false,
 ];
 
@@ -211,7 +217,7 @@ EOF;
 <?php
 
 return [
-    '' => Triangle\\Engine\\Exception\\ExceptionHandler::class,
+    '' => Triangle\\Exception\\ExceptionHandler::class,
 ];
 
 EOF;
@@ -248,9 +254,7 @@ EOF;
 <?php
 
 return [
-    '' => [
-        
-    ]
+    '' => []
 ];
 
 EOF;
@@ -268,11 +272,25 @@ EOF;
         $content = <<<EOF
 <?php
 return [
+    'client' => 'predis',
+    
+    'options' => [
+        'cluster' => 'redis',
+        'prefix' => 'triangle_',
+    ],
+    
     'default' => [
         'host' => '127.0.0.1',
         'password' => null,
         'port' => 6379,
         'database' => 0,
+    ],
+    
+    'cache' => [
+        'host' => '127.0.0.1',
+        'password' => null,
+        'port' => 6379,
+        'database' => 1,
     ],
 ];
 
@@ -283,7 +301,7 @@ EOF;
         $content = <<<EOF
 <?php
 
-use Triangle\\Engine\\Router;
+use Triangle\\Router;
 
 
 EOF;
@@ -295,7 +313,7 @@ EOF;
 
 return [
     'enable' => true,
-    'middleware' => [],    // Static file Middleware
+    'middleware' => [],
 ];
 
 EOF;
@@ -305,17 +323,15 @@ EOF;
         $content = <<<EOF
 <?php
 
-use Triangle\\Engine\\View\\Raw;
-use Triangle\\Engine\\View\\Twig;
 use Triangle\\Engine\\View\\Blade;
+use Triangle\\Engine\\View\\Raw;
 use Triangle\\Engine\\View\\ThinkPHP;
+use Triangle\\Engine\\View\\Twig;
 
 return [
     'handler' => Raw::class,
     'options' => [
         'view_suffix' => 'phtml',
-        'pre_renders' => [],
-        'post_renders' => [],
         'vars' => [],
     ],
 ];

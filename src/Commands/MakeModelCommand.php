@@ -34,7 +34,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
-use Triangle\Engine\Database\Manager;
+use Triangle\Database\Manager;
 
 /**
  * @author walkor <walkor@workerman.net>
@@ -238,7 +238,7 @@ class MakeModelCommand extends Command
 
 namespace $namespace;
 
-use Triangle\\Engine\\Database\\Model;
+use Triangle\Database\Model;
 
 /**
 $properties
@@ -272,7 +272,6 @@ class $class extends Model
      * @var bool
      */
     public \$timestamps = false;
-    
     
 }
 

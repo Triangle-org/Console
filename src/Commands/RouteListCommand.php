@@ -31,7 +31,7 @@ use localzet\Console\Commands\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Triangle\Engine\Router;
+use Triangle\Router;
 
 /**
  * @author walkor <walkor@workerman.net>

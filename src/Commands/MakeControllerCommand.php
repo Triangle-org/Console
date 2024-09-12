@@ -115,8 +115,8 @@ class MakeControllerCommand extends Command
 namespace $namespace;
 
 use support\Request;
-use support\Response;
 use Throwable;
+use Triangle\Http\Response;
 
 class $name
 {
