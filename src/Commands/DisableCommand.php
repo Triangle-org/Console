@@ -64,7 +64,7 @@ class DisableCommand extends Command
             }
             $output->writeln("<info>Ссылка удалена</>");
 
-            exec("service supervisor restart");
+            exec("supervisorctl update");
             $output->writeln("<info>Supervisor перезапущен</>");
         } else {
             $output->writeln("<error>Файл не существует</>");

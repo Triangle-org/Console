@@ -104,7 +104,7 @@ class EnableCommand extends Command
         }
         $output->writeln("<info>Ссылка создана</>");
 
-        exec("service supervisor restart");
+        exec("supervisorctl update");
         $output->writeln("<info>Supervisor перезапущен</>");
 
         return self::SUCCESS;
