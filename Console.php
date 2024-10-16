@@ -41,10 +41,21 @@ use Triangle\Engine\Plugin;
  */
 class Console extends \localzet\Console
 {
+    /**
+     * @param array $config
+     * @param bool $installInternalCommands
+     * @throws ErrorException
+     */
     public function __construct(array $config = [], bool $installInternalCommands = true)
     {
         if (!InstalledVersions::isInstalled('triangle/engine')) {
             throw new RuntimeException('Triangle\\Console не может работать без Triangle\\Engine. Для запуска вне среды Triangle используйте `localzet/console`.');
+        }
+
+        if (!in_array($argv[1] ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections'])) {
+            Autoload::loadAll();
+        } else {
+            Autoload::loadCore();
         }
 
         $base_path = defined('BASE_PATH') ? BASE_PATH : (InstalledVersions::getRootPackage()['install_path'] ?? null);
@@ -70,17 +81,10 @@ class Console extends \localzet\Console
 
     /**
      * @return Console
-     * @throws ErrorException
      * @throws ReflectionException
      */
     public function loadAll(): static
     {
-        if (!in_array($argv[1] ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections'])) {
-            Autoload::loadAll();
-        } else {
-            Autoload::loadCore();
-        }
-
         $config = config();
         $command_path = Util::guessPath(app_path(), 'command', true);
 
