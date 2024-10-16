@@ -53,7 +53,7 @@ class EnableCommand extends Command
         if (is_file(runtime_path("/conf.d/supervisor/triangle.run"))) {
             $name = file_get_contents(runtime_path("/conf.d/supervisor/triangle.run"));
         } else {
-            $name = config('app.domain', generateId());
+            $name = $this->config('service.name', config('app.domain', generateId()));
         }
 
         $file = runtime_path("/conf.d/supervisor/$name.conf");

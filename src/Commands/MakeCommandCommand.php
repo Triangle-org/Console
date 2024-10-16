@@ -118,7 +118,7 @@ class $name extends Command
      */
     protected function configure()
     {
-        \$this->addArgument('name', InputArgument::OPTIONAL, 'Описание');
+        // \$this->addArgument('name', InputArgument::OPTIONAL, 'Описание');
     }
 
     /**
@@ -128,8 +128,8 @@ class $name extends Command
      */
     protected function execute(InputInterface \$input, OutputInterface \$output): int
     {
-        \$name = \$input->getArgument('name');
-        \$output->writeln('Выполнена команда $command, name:' . \$name);
+        // \$name = \$input->getArgument('name');
+        \$output->writeln('Выполнена команда $command');
         return self::SUCCESS;
     }
 }

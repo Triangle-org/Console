@@ -118,7 +118,7 @@ class $name implements MiddlewareInterface
      * @return Response
      * @throws Throwable
      */
-    public function process(Request \$request, callable \$handler) : Response
+    public function process(\$request, callable \$handler)
     {
         return \$handler(\$request);
     }
