@@ -27,8 +27,10 @@
 namespace Triangle\Console\Commands;
 
 use localzet\Console\Commands\Command;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
 
 /**
  * @author Ivan Zorin <ivan@zorin.space>
@@ -104,9 +106,45 @@ class EnableCommand extends Command
         }
         $output->writeln("<info>Ссылка создана</>");
 
-        exec("supervisorctl update");
+        $this->exec("supervisorctl update", $output);
         $output->writeln("<info>Supervisor перезапущен</>");
 
+        $process = $this->exec("supervisorctl status $name", $output);
+
+        $table = new Table($output);
+        $table->setHeaders(['NAME', 'STATUS', 'PID', 'UPTIME']);
+
+        $rows = [];
+        foreach (explode("\n", $process->getOutput()) as $connection) {
+            if (!empty($connection)) {
+                $parts = preg_split('/\s+/', $connection);
+                $rows[] = [
+                    'NAME' => $parts[0],
+                    'STATUS' => $parts[1],
+                    'PID' => rtrim($parts[3], ','),
+                    'UPTIME' => $parts[5]
+                ];
+            }
+        }
+
+        usort($rows, function($a, $b) {
+            return $a['NAME'] <=> $b['NAME'];
+        });
+
+        $table->setRows($rows);
+        $table->render();
         return self::SUCCESS;
+    }
+
+    private function exec(array|string $command, $output) {
+        $process = new Process(is_string($command) ? explode(" ", $command) : $command);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            $output->writeln($process->getErrorOutput());
+            return self::FAILURE;
+        }
+
+        return $process;
     }
 }
