@@ -29,6 +29,7 @@ namespace Triangle\Console\Commands;
 use localzet\Console\Commands\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
 
 /**
  * @author Ivan Zorin <ivan@zorin.space>
@@ -55,6 +56,7 @@ class DisableCommand extends Command
         } else {
             $name = $this->config('service.name', config('app.domain'));
         }
+
         $file = "/etc/supervisor/conf.d/$name.conf";
 
         if (is_file($file)) {
@@ -64,7 +66,7 @@ class DisableCommand extends Command
             }
             $output->writeln("<info>Ссылка удалена</>");
 
-            exec("supervisorctl update");
+            $this->exec("supervisorctl update", $output);
             $output->writeln("<info>Supervisor перезапущен</>");
         } else {
             $output->writeln("<error>Файл не существует</>");
@@ -72,5 +74,17 @@ class DisableCommand extends Command
 
 
         return self::SUCCESS;
+    }
+
+    private function exec(array|string $command, $output) {
+        $process = new Process(is_string($command) ? explode(" ", $command) : $command);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            $output->writeln($process->getErrorOutput());
+            return self::FAILURE;
+        }
+
+        return $process;
     }
 }
