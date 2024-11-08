@@ -253,21 +253,21 @@ class $class extends Model
     protected \$connection = '$connection';
     
     /**
-     * Таблица, связанная с моделью.
+     * Таблица, связанная с моделью
      *
      * @var string
      */
     protected \$table = $table_val;
 
     /**
-     * Первичный ключ, связанный с таблицей.
+     * Первичный ключ, связанный с таблицей
      *
      * @var string
      */
     protected \$primaryKey = '$pk';
 
     /**
-     * Указывает, должна ли модель быть временной меткой.
+     * Указывает, должна ли модель иметь метку времени
      *
      * @var bool
      */

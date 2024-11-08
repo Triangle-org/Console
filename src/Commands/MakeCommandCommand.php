@@ -114,21 +114,12 @@ class $name extends Command
     protected static string \$defaultDescription = '$desc';
 
     /**
-     * @return void
-     */
-    protected function configure()
-    {
-        // \$this->addArgument('name', InputArgument::OPTIONAL, 'Описание');
-    }
-
-    /**
      * @param InputInterface \$input
      * @param OutputInterface \$output
      * @return int
      */
     protected function execute(InputInterface \$input, OutputInterface \$output): int
     {
-        // \$name = \$input->getArgument('name');
         \$output->writeln('Выполнена команда $command');
         return self::SUCCESS;
     }

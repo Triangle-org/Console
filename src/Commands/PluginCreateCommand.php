@@ -115,6 +115,7 @@ class PluginCreateCommand extends Command
         create_dir($plugin_config_path);
         $app_str = <<<EOF
 <?php
+
 return [
     'enable' => true,
 ];

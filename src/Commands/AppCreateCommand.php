@@ -88,10 +88,9 @@ class AppCreateCommand extends Command
 
         $this->mkdir("$plugin_path/config");
         $this->mkdir("$plugin_path/public");
-        $this->mkdir("$plugin_path/api");
+        // $this->mkdir("$plugin_path/api");
 
-        $this->createFunctionsFile("$plugin_path/app/functions.php");
-        $this->createControllerFile("$plugin_path/app/controller/IndexController.php", $name);
+        $this->createControllerFile("$plugin_path/app/controller/Index.php", $name);
         $this->createConfigFiles("$plugin_path/config", $name);
     }
 
@@ -124,7 +123,7 @@ use support\Request;
 use Throwable;
 use Triangle\Http\Response;
 
-class IndexController
+class Index
 {
     /**
      * @param Request \$request
@@ -144,25 +143,6 @@ EOF;
     }
 
     /**
-     * @param $file
-     * @return void
-     */
-    protected function createFunctionsFile($file): void
-    {
-        $content = <<<EOF
-<?php declare(strict_types=1);
-
-/**
- * Here is your custom functions.
- */
-
-
-
-EOF;
-        file_put_contents($file, $content);
-    }
-
-    /**
      * @param $base
      * @param $name
      * @return void
@@ -177,8 +157,9 @@ use support\\Request;
 
 return [
     'debug' => true,
-    'controller_suffix' => '',
-    'controller_reuse' => false,
+    
+    'controller_suffix' => env('CONTROLLER_SUFFIX', ''),
+    'controller_reuse' => env('CONTROLLER_REUSE', true),
 ];
 
 EOF;
@@ -187,10 +168,9 @@ EOF;
         // autoload.php
         $content = <<<EOF
 <?php
+
 return [
-    'files' => [
-        base_path() . '/plugin/$name/app/functions.php',
-    ]
+    'files' => []
 ];
 EOF;
         file_put_contents("$base/autoload.php", $content);
@@ -198,7 +178,8 @@ EOF;
         // container.php
         $content = <<<EOF
 <?php
-return new Triangle\\Engine\\Container;
+
+return new Triangle\\Engine\\Container();
 
 EOF;
         file_put_contents("$base/container.php", $content);
@@ -207,6 +188,7 @@ EOF;
         // database.php
         $content = <<<EOF
 <?php
+
 return  [];
 
 EOF;
@@ -233,13 +215,17 @@ return [
             [
                 'class' => Monolog\\Handler\\RotatingFileHandler::class,
                 'constructor' => [
-                    runtime_path() . '/logs/$name.log',
-                    7,
-                    Monolog\\Logger::DEBUG,
+                    runtime_path(env('LOG_FILE_NAME', 'logs/triangle.log')),
+                    (int)env('LOG_FILE_COUNT', 7),
+                    env('LOG_FILE_LEVEL', Monolog\\Logger::DEBUG),
                 ],
                 'formatter' => [
                     'class' => Monolog\\Formatter\\LineFormatter::class,
-                    'constructor' => [null, 'Y-m-d H:i:s', true],
+                    'constructor' => [
+                        env('LOG_FILE_FORMAT'),
+                        env('LOG_FILE_DATE_FORMAT', 'Y-m-d H:i:s'),
+                        env('LOG_FILE_INLINE_BREAKS', true)
+                    ],
                 ],
             ]
         ],
@@ -263,6 +249,7 @@ EOF;
         // process.php
         $content = <<<EOF
 <?php
+
 return [];
 
 EOF;
@@ -271,26 +258,29 @@ EOF;
         // redis.php
         $content = <<<EOF
 <?php
+
 return [
-    'client' => 'predis',
-    
+    'client' => env('REDIS_CLIENT', 'predis'),
+
     'options' => [
-        'cluster' => 'redis',
-        'prefix' => 'triangle_',
+        'cluster' => env('REDIS_CLUSTER', 'redis'),
+        'prefix' => env('REDIS_PREFIX', 'triangle_'),
     ],
-    
+
     'default' => [
-        'host' => '127.0.0.1',
-        'password' => null,
-        'port' => 6379,
-        'database' => 0,
+        'url' => env('REDIS_URL'),
+        'host' => env('REDIS_HOST', '127.0.0.1'),
+        'port' => env('REDIS_PORT', '6379'),
+        'password' => env('REDIS_PASSWORD'),
+        'database' => env('REDIS_DB', '0'),
     ],
-    
+
     'cache' => [
-        'host' => '127.0.0.1',
-        'password' => null,
-        'port' => 6379,
-        'database' => 1,
+        'url' => env('REDIS_URL'),
+        'host' => env('REDIS_HOST', '127.0.0.1'),
+        'port' => env('REDIS_PORT', '6379'),
+        'password' => env('REDIS_PASSWORD'),
+        'database' => env('REDIS_DB_CACHE', '1'),
     ],
 ];
 
@@ -312,7 +302,7 @@ EOF;
 <?php
 
 return [
-    'enable' => true,
+    'enable' => env('STATIC_ENABLE', true),
     'middleware' => [],
 ];
 
@@ -329,7 +319,12 @@ use Triangle\\Engine\\View\\ThinkPHP;
 use Triangle\\Engine\\View\\Twig;
 
 return [
-    'handler' => Raw::class,
+    'handler' => match (env('VIEW_HANDLER', 'raw')) {
+        'blade' => Blade::class,
+        'raw' => Raw::class,
+        'think' => ThinkPHP::class,
+        'twig' => Twig::class,
+    },
     'options' => [
         'view_suffix' => 'phtml',
         'vars' => [],
