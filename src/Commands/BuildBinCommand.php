@@ -40,9 +40,9 @@ class BuildBinCommand extends BuildPharCommand
     protected static string $defaultDescription = 'Упаковать проект в BIN';
 
     protected float $php_version = 8.3;
-    protected string $php_ini = '';
+    protected string $php_ini = 'memory_limit = 256M';
 
-    protected string $bin_filename = 'localzet.phar';
+    protected string $bin_filename = 'localzet';
     protected ?string $bin_file = null;
 
     protected string $php_ini_file = '';
@@ -56,10 +56,10 @@ class BuildBinCommand extends BuildPharCommand
         parent::configure();
         $this->addArgument('version', InputArgument::OPTIONAL, 'Версия PHP');
 
-        $this->php_version = (float)$this->config('build.php_version', PHP_VERSION);
-        $this->php_ini = $this->config('build.php_ini', 'memory_limit = 256M');
+        $this->php_version = $this->config('build.php_version', $this->php_version);
+        $this->php_ini = $this->config('build.php_ini', $this->php_ini);
 
-        $this->bin_filename = $this->config('build.bin_filename', 'triangle.bin');
+        $this->bin_filename = $this->config('build.bin_filename', $this->bin_filename);
         $this->bin_file = rtrim($this->output_dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $this->bin_filename;
 
         $this->php_ini_file = rtrim($this->output_dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'custominiheader.bin';
