@@ -28,12 +28,15 @@ namespace Triangle;
 
 use Composer\InstalledVersions;
 use ErrorException;
+use Exception;
 use localzet\Console\Util;
 use Phar;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
-use Triangle\Engine\Autoload;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Triangle\Engine\Config;
 use Triangle\Engine\Plugin;
 
 /**
@@ -52,66 +55,69 @@ class Console extends \localzet\Console
             throw new RuntimeException('Triangle\\Console не может работать без Triangle\\Engine. Для запуска вне среды Triangle используйте `localzet/console`.');
         }
 
-        if (!in_array($argv[1] ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections'])) {
-            Autoload::loadAll();
-        } else {
-            Autoload::loadCore();
-        }
+        $config_loaded = Config::isLoaded();
+        if ($config_loaded) {
+            $base_path = defined('BASE_PATH') ? BASE_PATH : (InstalledVersions::getRootPackage()['install_path'] ?? null);
+            $config += config('console', ['build' => [
+                'input_dir' => $base_path,
+                'output_dir' => $base_path . DIRECTORY_SEPARATOR . 'build',
+                'exclude_pattern' => '#^(?!.*(composer.json|/.github/|/.idea/|/.git/|/.setting/|/runtime/|/vendor-bin/|/build/))(.*)$#',
+                'exclude_files' => ['.env', 'LICENSE', 'composer.json', 'composer.lock', 'triangle.phar', 'triangle'],
+                'phar_alias' => 'triangle',
+                'phar_filename' => 'triangle.phar',
+                'phar_stub' => 'master',
+                'signature_algorithm' => Phar::SHA256,
+                'private_key_file' => '',
+                'php_version' => 8.3,
+                'php_ini' => 'memory_limit = 256M',
+                'bin_filename' => 'triangle',
+            ]]);
 
-        $base_path = defined('BASE_PATH') ? BASE_PATH : (InstalledVersions::getRootPackage()['install_path'] ?? null);
-        $config += config('console', ['build' => [
-            'input_dir' => $base_path,
-            'output_dir' => $base_path . DIRECTORY_SEPARATOR . 'build',
-            'exclude_pattern' => '#^(?!.*(composer.json|/.github/|/.idea/|/.git/|/.setting/|/runtime/|/vendor-bin/|/build/))(.*)$#',
-            'exclude_files' => ['.env', 'LICENSE', 'composer.json', 'composer.lock', 'triangle.phar', 'triangle'],
-            'phar_alias' => 'triangle',
-            'phar_filename' => 'triangle.phar',
-            'phar_stub' => 'master',
-            'signature_algorithm' => Phar::SHA256,
-            'private_key_file' => '',
-            'php_version' => 8.3,
-            'php_ini' => 'memory_limit = 256M',
-            'bin_filename' => 'triangle',
-        ]]);
+            $installInternalCommands && $this->installInternalCommands();
+            $this->loadFromConfig(config('command', []));
+
+            // Грузим команды из /app/command/*.php
+            $command_path = Util::guessPath(app_path(), 'command', true);
+            $command_path && $this->installCommands($command_path);
+
+            // Грузим команды из /plugin/{plugin}/app/command/*.php
+            Plugin::app_reduce(function ($plugin, $config) {
+                $this->loadFromConfig($config['command'] ?? []);
+
+                $plugin_path = config('app.plugin_alias', 'plugin');
+                $base_path = "$plugin_path/app/$plugin";
+                $command_str = Util::guessPath(base_path($base_path), 'command');
+
+                if ($command_str) {
+                    $path = "$base_path/$command_str";
+                    $this->installCommands(base_path($path), str_replace('/', "\\", $path));
+                }
+            });
+
+            // Грузим команды из /config/plugin/{vendor}/{plugin}/command.php
+            Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) {
+                $this->loadFromConfig($config['command'] ?? []);
+            });
+        }
         $config['name'] = 'Triangle Console';
         $config['version'] = InstalledVersions::getPrettyVersion('triangle/console');
 
-        parent::__construct($config, $installInternalCommands);
+        parent::__construct($config, $installInternalCommands && !$config_loaded);
     }
 
     /**
-     * @return Console
-     * @throws ReflectionException
+     * @throws ErrorException
+     * @throws Exception
      */
-    public function loadAll(): static
+    public static function runAll(
+        array            $config = [],
+        bool             $internal = true,
+        ?InputInterface  $input = null,
+        ?OutputInterface $output = null
+    ): void
     {
-        $config = config();
-        $command_path = Util::guessPath(app_path(), 'command', true);
-
-        // Грузим команды из /app/command/*.php
-        $this->loadFromConfig($config['command'] ?? []);
-        $command_path && $this->installCommands($command_path);
-
-        // Грузим команды из /plugin/{plugin}/app/command/*.php
-        Plugin::app_reduce(function ($plugin, $config) {
-            $this->loadFromConfig($config['command'] ?? []);
-
-            $plugin_path = config('app.plugin_alias', 'plugin');
-            $base_path = "$plugin_path/app/$plugin";
-            $command_str = Util::guessPath(base_path($base_path), 'command');
-
-            if ($command_str) {
-                $path = "$base_path/$command_str";
-                $this->installCommands(base_path($path), str_replace('/', "\\", $path));
-            }
-        });
-
-        // Грузим команды из /config/plugin/{vendor}/{plugin}/command.php
-        Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) {
-            $this->loadFromConfig($config['command'] ?? []);
-        });
-
-        return $this;
+        $self = new self($config, $internal);
+        $self->run($input, $output);
     }
 
     /**

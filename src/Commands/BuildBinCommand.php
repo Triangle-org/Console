@@ -46,7 +46,7 @@ class BuildBinCommand extends BuildPharCommand
     protected ?string $bin_file = null;
 
     protected string $php_ini_file = '';
-    protected string $php_cli_cdn = 'ru-1.cdn.zorin.space';
+    protected string $php_cli_cdn = 'static.zorin.space';
 
     /**
      * @return void
