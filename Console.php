@@ -55,8 +55,7 @@ class Console extends \localzet\Console
             throw new RuntimeException('Triangle\\Console не может работать без Triangle\\Engine. Для запуска вне среды Triangle используйте `localzet/console`.');
         }
 
-        $config_loaded = Config::isLoaded();
-        if ($config_loaded) {
+        if (Config::isLoaded()) {
             $base_path = defined('BASE_PATH') ? BASE_PATH : (InstalledVersions::getRootPackage()['install_path'] ?? null);
             $config += config('console', ['build' => [
                 'input_dir' => $base_path,
@@ -73,7 +72,6 @@ class Console extends \localzet\Console
                 'bin_filename' => 'triangle',
             ]]);
 
-            $installInternalCommands && $this->installInternalCommands();
             $this->loadFromConfig(config('command', []));
 
             // Грузим команды из /app/command/*.php
@@ -102,7 +100,7 @@ class Console extends \localzet\Console
         $config['name'] = 'Triangle Console';
         $config['version'] = InstalledVersions::getPrettyVersion('triangle/console');
 
-        parent::__construct($config, $installInternalCommands && !$config_loaded);
+        parent::__construct($config, $installInternalCommands);
     }
 
     /**
