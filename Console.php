@@ -49,7 +49,7 @@ class Console extends \localzet\Console
      * @param bool $installInternalCommands
      * @throws ErrorException
      */
-    public function __construct(array $config = [], bool $installInternalCommands = true)
+    public function __construct(protected array $config = [], bool $installInternalCommands = true)
     {
         if (!InstalledVersions::isInstalled('triangle/engine')) {
             throw new RuntimeException('Triangle\\Console не может работать без Triangle\\Engine. Для запуска вне среды Triangle используйте `localzet/console`.');
@@ -57,7 +57,7 @@ class Console extends \localzet\Console
 
         if (Config::isLoaded()) {
             $base_path = defined('BASE_PATH') ? BASE_PATH : (InstalledVersions::getRootPackage()['install_path'] ?? null);
-            $config += config('console', ['build' => [
+            $this->config += config('console', ['build' => [
                 'input_dir' => $base_path,
                 'output_dir' => $base_path . DIRECTORY_SEPARATOR . 'build',
                 'exclude_pattern' => '#^(?!.*(composer.json|/.github/|/.idea/|/.git/|/.setting/|/runtime/|/vendor-bin/|/build/))(.*)$#',
@@ -97,10 +97,10 @@ class Console extends \localzet\Console
                 $this->loadFromConfig($config['command'] ?? []);
             });
         }
-        $config['name'] = 'Triangle Console';
-        $config['version'] = InstalledVersions::getPrettyVersion('triangle/console');
+        $this->config['name'] = 'Triangle Console';
+        $this->config['version'] = InstalledVersions::getPrettyVersion('triangle/console');
 
-        parent::__construct($config, $installInternalCommands);
+        parent::__construct($this->config, $installInternalCommands);
     }
 
     /**
