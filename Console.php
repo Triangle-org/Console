@@ -55,6 +55,7 @@ class Console extends \localzet\Console
             throw new RuntimeException('Triangle\\Console не может работать без Triangle\\Engine. Для запуска вне среды Triangle используйте `localzet/console`.');
         }
 
+
         if (Config::isLoaded()) {
             $base_path = defined('BASE_PATH') ? BASE_PATH : (InstalledVersions::getRootPackage()['install_path'] ?? null);
             $this->config += config('console', ['build' => [
