@@ -28,7 +28,7 @@
   },
   "require": {
     "localzet/console": ">=1.0",
-    "triangle/engine": ">=6.3",
+    "triangle/engine": "^8.1",
     "symfony/process": "^7.1"
   },
   "suggest": {
