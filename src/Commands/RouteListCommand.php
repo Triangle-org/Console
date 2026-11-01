@@ -34,7 +34,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Triangle\Router;
 
 /**
- * @author walkor <walkor@workerman.net>
+ * @author walkor
  * @author Ivan Zorin <ivan@zorin.space>
  */
 class RouteListCommand extends Command

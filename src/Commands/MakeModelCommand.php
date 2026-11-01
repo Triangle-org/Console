@@ -37,7 +37,7 @@ use Throwable;
 use Triangle\Database\Manager;
 
 /**
- * @author walkor <walkor@workerman.net>
+ * @author walkor
  * @author Ivan Zorin <ivan@zorin.space>
  */
 class MakeModelCommand extends Command

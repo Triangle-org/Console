@@ -32,7 +32,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @author walkor <walkor@workerman.net>
+ * @author walkor
  * @author Ivan Zorin <ivan@zorin.space>
  */
 class AppCreateCommand extends Command
@@ -119,9 +119,9 @@ class AppCreateCommand extends Command
 
 namespace plugin\\$name\\app\\controller;
 
-use support\Request;
+use Triangle\Request;
 use Throwable;
-use Triangle\Http\Response;
+use Triangle\Response;
 
 class Index
 {

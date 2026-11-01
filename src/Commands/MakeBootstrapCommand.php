@@ -31,7 +31,7 @@ use localzet\Console\Util;
 use Symfony\Component\Console\{Input\InputArgument, Input\InputInterface, Output\OutputInterface};
 
 /**
- * @author walkor <walkor@workerman.net>
+ * @author walkor
  * @author Ivan Zorin <ivan@zorin.space>
  */
 class MakeBootstrapCommand extends Command
