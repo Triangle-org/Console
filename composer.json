@@ -36,5 +36,10 @@
   "suggest": {
     "ext-zip": "For build bin",
     "ext-openssl": "For build phar (Phar::OPENSSL)"
+  },
+  "config": {
+    "platform": {
+      "php": "8.2.0"
+    }
   }
 }
