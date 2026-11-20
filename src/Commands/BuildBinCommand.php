@@ -5,7 +5,8 @@
  * @link        https://github.com/Triangle-org/Console
  *
  * @author      Ivan Zorin <creator@localzet.com>
- * @copyright   Copyright (c) 2023-2024 Triangle Framework Team
+ * @copyright   Copyright © 2016-2026 Localzet Group. All rights reserved.
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License v3.0
  *
  *              This program is free software: you can redistribute it and/or modify
@@ -39,7 +40,7 @@ class BuildBinCommand extends BuildPharCommand
     protected static string $defaultName = 'build:bin';
     protected static string $defaultDescription = 'Упаковать проект в BIN';
 
-    protected float $php_version = 8.3;
+    protected float $php_version = 8.4;
     protected string $php_ini = 'memory_limit = 256M';
 
     protected string $bin_filename = 'localzet';
