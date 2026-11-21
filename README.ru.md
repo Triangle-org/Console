@@ -7,7 +7,7 @@ Triangle Console связывает [Localzet Console](https://github.com/localz
 ## Установка
 
 ```sh
-composer require triangle/console
+composer require triangle/console:^2.0
 ```
 
 Компонент работает в приложении на Triangle Engine. Подключите автозагрузчик Composer и запустите `Triangle\Console\Console`:

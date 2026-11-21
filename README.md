@@ -7,7 +7,7 @@ Triangle Console adds Triangle Engine integration and project commands to [Local
 ## Install
 
 ```sh
-composer require triangle/console
+composer require triangle/console:^2.0
 ```
 
 The package uses the Triangle Engine runtime. Install it in a Triangle application, then register `Triangle\Console\Console` as the command application:

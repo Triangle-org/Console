@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [2.0.0] - Unreleased
 
 ### Breaking
 - Require PHP 8.4.1+, Triangle Engine 9, Localzet Console 2.2, and Symfony Console/Process 8.1.
