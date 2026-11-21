@@ -5,7 +5,8 @@
  * @link        https://github.com/Triangle-org/Console
  *
  * @author      Ivan Zorin <creator@localzet.com>
- * @copyright   Copyright (c) 2023-2024 Triangle Framework Team
+ * @copyright   Copyright © 2016-2026 Localzet Group. All rights reserved.
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License v3.0
  *
  *              This program is free software: you can redistribute it and/or modify
@@ -76,6 +77,8 @@ class EnableCommand extends Command
                 is_file("$directory/php-8.0") => "$directory/php-8.0",
                 is_file("$directory/php-8.1") => "$directory/php-8.1",
                 is_file("$directory/php-8.2") => "$directory/php-8.2",
+                is_file("$directory/php-8.5") => "$directory/php-8.5",
+                is_file("$directory/php-8.4") => "$directory/php-8.4",
                 is_file("$directory/php-8.3") => "$directory/php-8.3",
                 default => "php",
             };

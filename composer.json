@@ -27,19 +27,27 @@
     }
   },
   "require": {
-    "php": "^8.2",
-    "localzet/console": "^1.1",
-    "triangle/engine": "^8.1",
-    "symfony/console": "^7.1",
-    "symfony/process": "^7.1"
+    "php": "^8.4.1",
+    "localzet/console": "^2.2",
+    "triangle/engine": "^9.0",
+    "symfony/console": "^8.1",
+    "symfony/process": "^8.1"
   },
   "suggest": {
     "ext-zip": "For build bin",
     "ext-openssl": "For build phar (Phar::OPENSSL)"
   },
+  "scripts": {
+    "lint": "find . -path './vendor' -prune -o -path './.git' -prune -o -name '*.php' -type f -print0 | xargs -0 -n1 php -l",
+    "test": "php tests/run.php",
+    "check": [
+      "@lint",
+      "@test"
+    ]
+  },
   "config": {
     "platform": {
-      "php": "8.2.0"
+      "php": "8.4.1"
     }
   }
 }

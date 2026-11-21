@@ -5,7 +5,8 @@
  * @link        https://github.com/Triangle-org/Console
  *
  * @author      Ivan Zorin <creator@localzet.com>
- * @copyright   Copyright (c) 2023-2024 Triangle Framework Team
+ * @copyright   Copyright © 2016-2026 Localzet Group. All rights reserved.
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License v3.0
  *
  *              This program is free software: you can redistribute it and/or modify
@@ -68,11 +69,18 @@ class Console extends \localzet\Console
                 'phar_stub' => 'master',
                 'signature_algorithm' => Phar::SHA256,
                 'private_key_file' => '',
-                'php_version' => 8.3,
+                'php_version' => 8.4,
                 'php_ini' => 'memory_limit = 256M',
                 'bin_filename' => 'triangle',
             ]]);
+        }
 
+        $this->config['name'] = 'Triangle Console';
+        $this->config['version'] = InstalledVersions::getPrettyVersion('triangle/console');
+
+        parent::__construct($this->config, $installInternalCommands);
+
+        if (Config::isLoaded()) {
             $this->loadFromConfig(config('command', []));
 
             // Грузим команды из /app/command/*.php
@@ -98,10 +106,6 @@ class Console extends \localzet\Console
                 $this->loadFromConfig($config['command'] ?? []);
             });
         }
-        $this->config['name'] = 'Triangle Console';
-        $this->config['version'] = InstalledVersions::getPrettyVersion('triangle/console');
-
-        parent::__construct($this->config, $installInternalCommands);
     }
 
     /**
@@ -134,7 +138,7 @@ class Console extends \localzet\Console
             $name = $properties['defaultName'] ?? null;
             if (!$name) throw new RuntimeException("У команды $class_name нет defaultName");
 
-            $this->add(new $class_name(config('console', [])));
+            $this->addCommand(new $class_name(config('console', [])));
         }
     }
 

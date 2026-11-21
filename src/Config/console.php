@@ -27,7 +27,7 @@ return [
         'private_key_file' => '', // Для Phar::OPENSSL
 
         // Для бинарной сборки:
-        'php_version' => 8.3,
+        'php_version' => 8.4,
         'php_ini' => 'memory_limit = 256M',
 
         'bin_filename' => 'triangle',
